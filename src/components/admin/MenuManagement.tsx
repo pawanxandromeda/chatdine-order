@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { Plus, Edit, Trash2, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit, Trash2, Image as ImageIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MenuItem {
   id: string;
@@ -43,30 +49,48 @@ export const MenuManagement = () => {
   const [isAdding, setIsAdding] = useState(false);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Menu Items</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage your restaurant menu
-          </p>
+    <TooltipProvider>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Menu Items</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage your restaurant menu
+            </p>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => setIsAdding(!isAdding)}
+                className="rounded-2xl premium-gradient hover-lift"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Add a new dish to your menu</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-        <Button
-          onClick={() => setIsAdding(!isAdding)}
-          className="rounded-2xl"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Item
-        </Button>
-      </div>
 
       {isAdding && (
-        <Card className="glass p-6 border-border/50 animate-slide-up">
+        <Card className="glass p-6 border-border/50 animate-slide-up hover-lift">
           <h3 className="text-lg font-semibold mb-4">Add New Item</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name">Item Name</Label>
+                <Label htmlFor="name">
+                  Item Name
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="inline ml-1 h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">The name customers will see</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
                 <Input
                   id="name"
                   placeholder="e.g., Classic Burger"
@@ -74,7 +98,17 @@ export const MenuManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">
+                  Price ($)
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="inline ml-1 h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">Set your item's price</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
                 <Input
                   id="price"
                   type="number"
@@ -128,7 +162,7 @@ export const MenuManagement = () => {
                 >
                   Cancel
                 </Button>
-                <Button className="rounded-2xl">Add Item</Button>
+                <Button className="rounded-2xl premium-gradient">Add Item</Button>
               </div>
             </div>
           </div>
@@ -139,7 +173,7 @@ export const MenuManagement = () => {
         {items.map((item) => (
           <Card
             key={item.id}
-            className="glass overflow-hidden border-border/50 animate-slide-up"
+            className="glass overflow-hidden border-border/50 animate-slide-up hover-lift"
           >
             {item.image && (
               <img
@@ -188,5 +222,6 @@ export const MenuManagement = () => {
         ))}
       </div>
     </div>
+    </TooltipProvider>
   );
 };
