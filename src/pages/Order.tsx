@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { ChatInterface } from "@/components/order/ChatInterface";
+import { MenuView } from "@/components/order/MenuView";
 import { Cart } from "@/components/order/Cart";
 import { PaymentSection } from "@/components/order/PaymentSection";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageSquare, UtensilsCrossed } from "lucide-react";
 
 export interface CartItem {
   id: string;
@@ -71,7 +74,24 @@ const Order = () => {
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <ChatInterface onAddToCart={addToCart} />
+            <Tabs defaultValue="chat" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="chat" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Chat Order
+                </TabsTrigger>
+                <TabsTrigger value="menu" className="gap-2">
+                  <UtensilsCrossed className="h-4 w-4" />
+                  Browse Menu
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="chat" className="mt-0">
+                <ChatInterface onAddToCart={addToCart} />
+              </TabsContent>
+              <TabsContent value="menu" className="mt-0">
+                <MenuView onAddToCart={addToCart} />
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="space-y-6">
