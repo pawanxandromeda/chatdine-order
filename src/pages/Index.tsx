@@ -94,166 +94,246 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20">
-        <div className="absolute inset-0 premium-gradient opacity-5 animate-gradient" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+      <section className="relative overflow-hidden pt-20 min-h-screen flex items-center">
+        {/* Animated background blobs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-morph" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-blob-float" />
+          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-primary/20 rounded-full blur-2xl animate-float" />
+        </div>
         
-        <div className="container mx-auto px-4 py-20 md:py-32 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 animate-slide-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                <Sparkles className="h-4 w-4 text-primary animate-pulse-soft" />
-                <span className="text-sm font-medium text-primary">
-                  World-Class Restaurant Platform
+        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+        
+        <div className="container mx-auto px-4 py-20 relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 animate-slide-in-left backdrop-blur-xl">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse-soft" />
+                <span className="text-sm font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  #1 Restaurant AI Platform
                 </span>
+                <Sparkles className="h-4 w-4 text-primary animate-bounce-subtle" />
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">
-                The Future of{" "}
-                <span className="premium-gradient bg-clip-text text-transparent animate-gradient">
-                  Restaurant Ordering
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-[1.1] animate-slide-in-left stagger-1">
+                Transform{" "}
+                <span className="relative inline-block">
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent blur-lg animate-gradient" style={{ backgroundSize: '200% 200%' }}>
+                    Dining
+                  </span>
+                  <span className="relative bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient" style={{ backgroundSize: '200% 200%' }}>
+                    Dining
+                  </span>
                 </span>
+                <br />
+                Experience
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-                Empower your restaurant with Mevoo's AI-powered platform. Voice ordering, real-time analytics, and seamless payments - all in one elegant solution.
+              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-xl animate-slide-in-left stagger-2">
+                AI-powered ordering that speaks your language. Voice commands, smart recommendations, and lightning-fast service.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-slide-in-left stagger-3">
                 <Button 
                   size="lg" 
-                  className="text-lg px-8 h-14 rounded-2xl shadow-xl hover:shadow-2xl hover-lift premium-gradient border-0"
+                  className="text-lg px-10 h-16 rounded-2xl shadow-2xl hover:shadow-primary/25 transition-all duration-300 premium-gradient border-0 group relative overflow-hidden"
                   onClick={() => navigate("/signup")}
                 >
-                  Start Free Trial
-                  <Zap className="ml-2 h-5 w-5" />
+                  <span className="relative z-10 flex items-center">
+                    Start Free Trial
+                    <Zap className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline"
-                  className="text-lg px-8 h-14 rounded-2xl hover-lift"
+                  className="text-lg px-10 h-16 rounded-2xl glass border-2 border-primary/30 hover:border-primary transition-all duration-300 group"
                   onClick={() => navigate("/order")}
                 >
                   Try Demo
-                  <MessageSquare className="ml-2 h-5 w-5" />
+                  <MessageSquare className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 </Button>
               </div>
 
-              <div className="flex items-center gap-8 pt-8">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">500+</div>
+              <div className="flex items-center gap-8 pt-8 animate-slide-in-left stagger-4">
+                <div className="text-center group cursor-pointer">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent group-hover:scale-110 transition-transform">500+</div>
                   <div className="text-sm text-muted-foreground">Restaurants</div>
                 </div>
-                <div className="h-12 w-px bg-border" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">50K+</div>
+                <div className="h-16 w-px bg-gradient-to-b from-transparent via-primary to-transparent" />
+                <div className="text-center group cursor-pointer">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent group-hover:scale-110 transition-transform">50K+</div>
                   <div className="text-sm text-muted-foreground">Daily Orders</div>
                 </div>
-                <div className="h-12 w-px bg-border" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">99.9%</div>
+                <div className="h-16 w-px bg-gradient-to-b from-transparent via-primary to-transparent" />
+                <div className="text-center group cursor-pointer">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent group-hover:scale-110 transition-transform">99.9%</div>
                   <div className="text-sm text-muted-foreground">Uptime</div>
                 </div>
               </div>
             </div>
 
-            <div className="relative animate-fade-in">
-              <div className="absolute inset-0 premium-gradient opacity-20 blur-3xl rounded-full" />
-              <img
-                src={heroImage}
-                alt="Premium restaurant interior showcasing Mevoo platform"
-                className="relative rounded-3xl shadow-2xl hover-lift w-full h-auto"
-              />
+            <div className="relative animate-slide-in-right">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary to-accent opacity-20 blur-3xl animate-scale-pulse rounded-3xl" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-3xl animate-rotate-slow" style={{ transformOrigin: 'center' }} />
+                <img
+                  src={heroImage}
+                  alt="Premium restaurant interior showcasing Mevoo platform"
+                  className="relative rounded-3xl shadow-2xl hover:scale-105 transition-transform duration-500 w-full h-auto border border-primary/20"
+                />
+                <div className="absolute -bottom-6 -right-6 glass p-6 rounded-2xl border border-primary/30 animate-bounce-subtle backdrop-blur-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">95%</div>
+                      <div className="text-sm text-muted-foreground">Accuracy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-muted/30 relative overflow-hidden">
+      <section className="py-32 relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-blob-float" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-morph" />
+        </div>
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+        
         <div className="container mx-auto px-4 relative">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Everything You Need to{" "}
-              <span className="text-primary">Dominate</span>
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 mb-6 backdrop-blur-xl">
+              <Zap className="h-4 w-4 text-primary animate-pulse-soft" />
+              <span className="text-sm font-semibold">Powerful Features</span>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              Built for{" "}
+              <span className="relative inline-block">
+                <span className="absolute inset-0 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent blur-sm">
+                  Excellence
+                </span>
+                <span className="relative bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Excellence
+                </span>
+              </span>
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Enterprise-grade features that scale with your success
+            <p className="text-xl text-muted-foreground leading-relaxed">
+              Every feature designed to elevate your restaurant to new heights
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="glass p-8 hover-lift cursor-pointer group border-border/50 animate-slide-up"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className={`glass p-8 cursor-pointer group border-primary/20 hover:border-primary/50 transition-all duration-500 relative overflow-hidden animate-slide-up stagger-${(index % 6) + 1}`}
               >
-                <div className="h-14 w-14 rounded-2xl premium-gradient flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
-                  <feature.icon className="h-7 w-7 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg shadow-primary/25">
+                    <feature.icon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
               </Card>
             ))}
           </div>
 
           {/* Additional Premium Features */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16">
-            <Card className="glass p-6 text-center hover-lift border-border/50">
-              <BarChart3 className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Real-Time Analytics</h4>
-              <p className="text-sm text-muted-foreground">Live insights into your business performance</p>
-            </Card>
-            <Card className="glass p-6 text-center hover-lift border-border/50">
-              <Shield className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Enterprise Security</h4>
-              <p className="text-sm text-muted-foreground">Bank-level encryption and data protection</p>
-            </Card>
-            <Card className="glass p-6 text-center hover-lift border-border/50">
-              <Globe className="h-10 w-10 text-primary mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">Multi-Location</h4>
-              <p className="text-sm text-muted-foreground">Manage unlimited locations effortlessly</p>
-            </Card>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-20">
+            {[
+              { icon: BarChart3, title: "Real-Time Analytics", desc: "Live insights into your business performance" },
+              { icon: Shield, title: "Enterprise Security", desc: "Bank-level encryption and data protection" },
+              { icon: Globe, title: "Multi-Location", desc: "Manage unlimited locations effortlessly" }
+            ].map((item, index) => (
+              <Card key={index} className="glass p-8 text-center border-primary/20 hover:border-primary/50 transition-all duration-500 group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative">
+                  <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                    <item.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <h4 className="text-xl font-bold mb-2">{item.title}</h4>
+                  <p className="text-muted-foreground">{item.desc}</p>
+                </div>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-20 md:py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-muted/30" />
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-blob-float" />
+        </div>
+        
         <div className="container mx-auto px-4 relative">
-          <div className="text-center space-y-4 mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/20">
-              <ChefHat className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Simple Process</span>
+          <div className="text-center space-y-6 mb-20">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass border border-primary/30 backdrop-blur-xl">
+              <ChefHat className="h-5 w-5 text-primary animate-bounce-subtle" />
+              <span className="text-sm font-semibold">Simple & Powerful</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold">How It Works</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Three simple steps to transform your restaurant operations
+            <h2 className="text-5xl md:text-7xl font-bold">
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Seamless
+              </span>{" "}
+              Integration
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Three elegant steps to revolutionize your restaurant experience
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
             {[
-              { step: "01", title: "Scan QR Code", desc: "Customer scans table QR code with their phone camera" },
-              { step: "02", title: "Order Naturally", desc: "Chat or speak their order in plain language" },
-              { step: "03", title: "Pay & Enjoy", desc: "Secure payment and order confirmation in seconds" }
+              { step: "01", title: "Scan QR Code", desc: "Customer scans table QR code with their phone camera", icon: "📱" },
+              { step: "02", title: "Order Naturally", desc: "Chat or speak their order in plain language", icon: "💬" },
+              { step: "03", title: "Pay & Enjoy", desc: "Secure payment and order confirmation in seconds", icon: "✨" }
             ].map((item, index) => (
-              <div key={index} className="text-center space-y-4 group">
-                <div className="relative">
-                  <div className="text-7xl font-bold text-primary/10 group-hover:text-primary/20 transition-colors">
-                    {item.step}
+              <div key={index} className="relative group">
+                <Card className="glass p-10 border-primary/20 hover:border-primary/50 transition-all duration-500 relative overflow-hidden h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="relative space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="text-8xl font-bold bg-gradient-to-br from-primary/20 to-accent/20 bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-500">
+                        {item.step}
+                      </div>
+                      <div className="text-5xl group-hover:scale-125 group-hover:rotate-12 transition-all duration-500">
+                        {item.icon}
+                      </div>
+                    </div>
+                    
+                    <div className="h-1 w-20 bg-gradient-to-r from-primary to-accent rounded-full group-hover:w-full transition-all duration-500" />
+                    
+                    <h3 className="text-3xl font-bold group-hover:text-primary transition-colors">{item.title}</h3>
+                    <p className="text-lg text-muted-foreground leading-relaxed">{item.desc}</p>
                   </div>
+                  
                   {index < 2 && (
-                    <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-gradient-to-r from-primary/50 to-transparent -translate-y-1/2" />
+                    <div className="hidden lg:block absolute top-1/2 -right-6 z-10">
+                      <div className="h-12 w-12 rounded-full glass border-2 border-primary/30 flex items-center justify-center backdrop-blur-xl">
+                        <div className="text-primary text-xl animate-pulse-soft">→</div>
+                      </div>
+                    </div>
                   )}
-                </div>
-                <h3 className="text-2xl font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground">{item.desc}</p>
+                </Card>
               </div>
             ))}
           </div>
