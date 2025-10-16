@@ -12,13 +12,89 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-      <div className="absolute top-20 right-20 w-72 h-72 bg-primary/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/10 rounded-full blur-[120px]" />
+    <div className="min-h-screen grid md:grid-cols-2">
+      {/* Left Side - Branding */}
+      <div className="hidden md:flex items-center justify-center p-12 bg-gradient-to-br from-accent via-primary to-primary relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+        <div className="absolute top-20 left-20 w-96 h-96 bg-white/10 rounded-full blur-[100px] animate-float" />
+        <div className="absolute bottom-20 right-20 w-72 h-72 bg-white/5 rounded-full blur-[80px] animate-float" style={{ animationDelay: '2s' }} />
+        
+        <div className="relative z-10 text-white max-w-lg space-y-8 animate-slide-in-left">
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                <span className="text-white font-bold text-xl">M</span>
+              </div>
+              <span className="font-bold text-3xl">Mevoo</span>
+            </div>
+            <h2 className="text-5xl font-bold mb-6 leading-tight">
+              Join the restaurant revolution
+            </h2>
+            <p className="text-xl text-white/80 leading-relaxed">
+              Start your 14-day free trial. No credit card required. Cancel anytime.
+            </p>
+          </div>
 
-      <Card className="glass w-full max-w-2xl relative z-10 border-border/50 hover-lift">
+          <div className="space-y-6 pt-8">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Quick Setup</h3>
+                <p className="text-white/70">Get started in less than 5 minutes.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Bank-Grade Security</h3>
+                <p className="text-white/70">Your data is always protected and encrypted.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Instant Activation</h3>
+                <p className="text-white/70">Start taking orders immediately after signup.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8">
+            <div className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm">
+              <p className="text-lg mb-4 font-semibold">Trusted by restaurants worldwide</p>
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-white/20 border-2 border-white flex items-center justify-center">
+                      <User className="w-5 h-5" />
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p className="font-bold">500+ restaurants</p>
+                  <p className="text-sm text-white/70">already using Mevoo</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="flex items-center justify-center p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-card" />
+        <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-[120px] animate-blob-float" />
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-primary/5 rounded-full blur-[100px] animate-blob-float" style={{ animationDelay: '2s' }} />
+
+      <Card className="glass w-full max-w-2xl relative z-10 border-border/50 animate-slide-up">
         <CardHeader className="text-center space-y-2 pb-6">
           <div className="w-16 h-16 mx-auto mb-2 rounded-2xl bg-primary/10 flex items-center justify-center">
             <UserPlus className="w-8 h-8 text-primary" />

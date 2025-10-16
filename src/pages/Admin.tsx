@@ -4,88 +4,100 @@ import { OrdersManagement } from "@/components/admin/OrdersManagement";
 import { QRCodeManagement } from "@/components/admin/QRCodeManagement";
 import { Analytics } from "@/components/admin/Analytics";
 import { PaymentSettings } from "@/components/admin/PaymentSettings";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link } from "react-router-dom";
-import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SubscriptionManagement } from "@/components/admin/SubscriptionManagement";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("menu");
 
+  const getHeaderContent = () => {
+    switch (activeTab) {
+      case "menu":
+        return {
+          title: "Menu Management",
+          description: "Manage your restaurant menu items and categories",
+          stats: [
+            { label: "Total Items", value: "48", trend: "+5 this week" },
+            { label: "Categories", value: "8", trend: "2 active" },
+            { label: "Avg Price", value: "₹250", trend: "+₹20" },
+          ],
+        };
+      case "orders":
+        return {
+          title: "Orders Management",
+          description: "Track and manage customer orders in real-time",
+          stats: [
+            { label: "Today's Orders", value: "127", trend: "+18%" },
+            { label: "Pending", value: "8", trend: "2 urgent" },
+            { label: "Revenue", value: "₹31,450", trend: "+12%" },
+          ],
+        };
+      case "payments":
+        return {
+          title: "Payment Settings",
+          description: "Configure payment gateways and view transactions",
+          stats: [
+            { label: "Total Revenue", value: "₹4.2L", trend: "+24%" },
+            { label: "Transactions", value: "1,247", trend: "This month" },
+            { label: "Success Rate", value: "99.2%", trend: "+0.5%" },
+          ],
+        };
+      case "subscription":
+        return {
+          title: "Subscription Management",
+          description: "Manage your Mevoo subscription and billing",
+          stats: [
+            { label: "Current Plan", value: "Pro", trend: "Active" },
+            { label: "Orders Used", value: "1,247", trend: "Unlimited" },
+            { label: "AI Usage", value: "₹684", trend: "This month" },
+          ],
+        };
+      case "qr":
+        return {
+          title: "QR Code Management",
+          description: "Generate and manage QR codes for tables",
+          stats: [
+            { label: "Active Codes", value: "24", trend: "12 tables" },
+            { label: "Scans Today", value: "89", trend: "+15%" },
+            { label: "Avg Time", value: "4.2m", trend: "Per scan" },
+          ],
+        };
+      case "analytics":
+        return {
+          title: "Analytics & Insights",
+          description: "View detailed analytics and performance metrics",
+          stats: [
+            { label: "Total Orders", value: "5.2K", trend: "+32%" },
+            { label: "Revenue", value: "₹12.4L", trend: "+28%" },
+            { label: "Avg Order", value: "₹238", trend: "+5%" },
+          ],
+        };
+      default:
+        return {
+          title: "Dashboard",
+          description: "Welcome to your restaurant dashboard",
+        };
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-        <div className="mb-8 animate-slide-up flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
-              Restaurant Dashboard
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your restaurant operations in one place
-            </p>
+    <div className="flex min-h-screen bg-background w-full">
+      <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <div className="flex-1 flex flex-col">
+        <AdminHeader {...getHeaderContent()} />
+
+        <main className="flex-1 p-6">
+          <div className="animate-fade-in">
+            {activeTab === "menu" && <MenuManagement />}
+            {activeTab === "orders" && <OrdersManagement />}
+            {activeTab === "payments" && <PaymentSettings />}
+            {activeTab === "subscription" && <SubscriptionManagement />}
+            {activeTab === "qr" && <QRCodeManagement />}
+            {activeTab === "analytics" && <Analytics />}
           </div>
-          <Link to="/login">
-            <Button variant="outline" className="rounded-2xl">
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </Link>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 rounded-2xl p-1 h-auto glass">
-            <TabsTrigger
-              value="menu"
-              className="rounded-xl data-[state=active]:premium-gradient data-[state=active]:text-white py-3"
-            >
-              Menu
-            </TabsTrigger>
-            <TabsTrigger
-              value="orders"
-              className="rounded-xl data-[state=active]:premium-gradient data-[state=active]:text-white py-3"
-            >
-              Orders
-            </TabsTrigger>
-            <TabsTrigger
-              value="payments"
-              className="rounded-xl data-[state=active]:premium-gradient data-[state=active]:text-white py-3"
-            >
-              Payments
-            </TabsTrigger>
-            <TabsTrigger
-              value="qr"
-              className="rounded-xl data-[state=active]:premium-gradient data-[state=active]:text-white py-3"
-            >
-              QR Codes
-            </TabsTrigger>
-            <TabsTrigger
-              value="analytics"
-              className="rounded-xl data-[state=active]:premium-gradient data-[state=active]:text-white py-3"
-            >
-              Analytics
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="menu" className="animate-fade-in">
-            <MenuManagement />
-          </TabsContent>
-
-          <TabsContent value="orders" className="animate-fade-in">
-            <OrdersManagement />
-          </TabsContent>
-
-          <TabsContent value="payments" className="animate-fade-in">
-            <PaymentSettings />
-          </TabsContent>
-
-          <TabsContent value="qr" className="animate-fade-in">
-            <QRCodeManagement />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="animate-fade-in">
-            <Analytics />
-          </TabsContent>
-        </Tabs>
+        </main>
       </div>
     </div>
   );
