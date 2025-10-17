@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/admin", tab: "menu" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/admin", tab: "dashboard" },
   { icon: UtensilsCrossed, label: "Menu", path: "/admin", tab: "menu" },
   { icon: ShoppingBag, label: "Orders", path: "/admin", tab: "orders" },
   { icon: CreditCard, label: "Payments", path: "/admin", tab: "payments" },

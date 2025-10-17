@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Dashboard } from "@/components/admin/Dashboard";
 import { MenuManagement } from "@/components/admin/MenuManagement";
 import { OrdersManagement } from "@/components/admin/OrdersManagement";
 import { QRCodeManagement } from "@/components/admin/QRCodeManagement";
@@ -9,10 +10,20 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState("menu");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const getHeaderContent = () => {
     switch (activeTab) {
+      case "dashboard":
+        return {
+          title: "Dashboard",
+          description: "Overview of your restaurant performance",
+          stats: [
+            { label: "Today's Revenue", value: "₹31,450", trend: "+12%" },
+            { label: "Orders", value: "127", trend: "+8%" },
+            { label: "Customers", value: "1,247", trend: "+24%" },
+          ],
+        };
       case "menu":
         return {
           title: "Menu Management",
@@ -90,6 +101,7 @@ const Admin = () => {
 
         <main className="flex-1 p-6">
           <div className="animate-fade-in">
+            {activeTab === "dashboard" && <Dashboard />}
             {activeTab === "menu" && <MenuManagement />}
             {activeTab === "orders" && <OrdersManagement />}
             {activeTab === "payments" && <PaymentSettings />}

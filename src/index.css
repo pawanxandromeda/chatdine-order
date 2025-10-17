@@ -6,49 +6,53 @@
 
 @layer base {
   :root {
-    /* Light theme - minimal, clean */
+    /* Apple-inspired light theme - ultra minimal, clean */
     --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    --foreground: 0 0% 3%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 3%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 3%;
 
     --primary: 142 76% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 0 0% 97%;
+    --secondary-foreground: 0 0% 3%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 142 76% 36%;
+    --accent: 142 76% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 93%;
+    --input: 0 0% 93%;
     --ring: 142 76% 36%;
 
-    --radius: 1.25rem;
+    --radius: 1rem;
 
-    /* Premium additions */
+    /* Apple-style shadows and effects */
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --info: 217 91% 60%;
     
-    --glass-bg: 0 0% 100% / 0.7;
-    --glass-border: 0 0% 100% / 0.18;
+    --glass-bg: 0 0% 100% / 0.8;
+    --glass-border: 0 0% 0% / 0.06;
     
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1);
+    --shadow-apple-sm: 0 2px 8px 0 hsl(0 0% 0% / 0.04);
+    --shadow-apple-md: 0 4px 16px 0 hsl(0 0% 0% / 0.08);
+    --shadow-apple-lg: 0 12px 32px 0 hsl(0 0% 0% / 0.12);
+    --shadow-apple-xl: 0 24px 48px 0 hsl(0 0% 0% / 0.16);
+    
+    /* Black section colors */
+    --black-section: 0 0% 3%;
+    --black-section-muted: 0 0% 20%;
   }
 
   .dark {
@@ -96,15 +100,18 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Glassmorphism utilities */
+  /* Apple-inspired glassmorphism */
   .glass {
     background: hsl(var(--glass-bg));
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid hsl(var(--glass-border));
   }
   
@@ -112,13 +119,31 @@
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(142 76% 52%) 100%);
   }
   
+  /* Apple-style hover effects */
   .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
   .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-premium);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-apple-lg);
+  }
+
+  /* Black section styling */
+  .black-section {
+    background: hsl(var(--black-section));
+    color: hsl(0 0% 100%);
+  }
+
+  .black-section h1,
+  .black-section h2,
+  .black-section h3,
+  .black-section h4 {
+    color: hsl(0 0% 100%);
+  }
+
+  .black-section p {
+    color: hsl(var(--black-section-muted));
   }
 
   /* Premium animations */
