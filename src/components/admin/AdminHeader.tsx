@@ -77,12 +77,12 @@ export const AdminHeader = ({ title, description, stats }: AdminHeaderProps) => 
         <div className="px-6 pb-4">
           <div className="grid grid-cols-3 gap-4">
             {stats.map((stat, index) => (
-              <div key={index} className="glass rounded-xl p-4">
-                <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+              <div key={index} className="bg-muted/30 border border-border/50 rounded-xl p-4 shadow-apple-sm hover:shadow-apple-md transition-all duration-200">
+                <p className="text-xs text-muted-foreground mb-1 font-medium">{stat.label}</p>
                 <div className="flex items-end gap-2">
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
                   {stat.trend && (
-                    <span className="text-xs text-primary mb-1">{stat.trend}</span>
+                    <span className="text-xs text-primary mb-1 font-medium">{stat.trend}</span>
                   )}
                 </div>
               </div>

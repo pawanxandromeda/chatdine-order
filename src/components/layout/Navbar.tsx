@@ -14,39 +14,39 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/95 border-b border-border/40 shadow-apple-sm">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <ChefHat className="h-5 w-5 text-white" />
+          <Link to="/" className="flex items-center gap-2 hover:opacity-70 transition-all duration-300">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-apple-sm">
+              <ChefHat className="h-4 w-4 text-white" />
             </div>
-            <span className="font-semibold text-lg">Mevoo</span>
+            <span className="font-semibold text-base tracking-tight">Mevoo</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             <Link 
               to="/" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-all duration-200"
             >
               Home
             </Link>
             
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-all duration-200 outline-none">
                 Features
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-3 h-3" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-48 backdrop-blur-xl bg-background/95 border-border/50">
-                <DropdownMenuItem onClick={() => navigate("/order")} className="cursor-pointer">
+              <DropdownMenuContent align="center" className="w-48 backdrop-blur-xl bg-background/98 border-border/40 shadow-apple-md">
+                <DropdownMenuItem onClick={() => navigate("/order")} className="cursor-pointer text-xs">
                   AI Ordering
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/whatsapp-marketing")} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate("/whatsapp-marketing")} className="cursor-pointer text-xs">
                   WhatsApp Marketing
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer text-xs">
                   Dashboard
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -54,31 +54,31 @@ export const Navbar = () => {
 
             <Link 
               to="/pricing" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-all duration-200"
             >
               Pricing
             </Link>
 
             <Link 
               to="/whatsapp-marketing" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-all duration-200"
             >
               WhatsApp Marketing
             </Link>
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             <Button 
               variant="ghost" 
               onClick={() => navigate("/login")}
-              className="font-medium"
+              className="font-medium text-xs h-8 px-3 hover:bg-muted/50"
             >
               Sign In
             </Button>
             <Button 
               onClick={() => navigate("/signup")}
-              className="bg-gradient-to-r from-primary to-accent text-white border-0 font-medium"
+              className="bg-gradient-to-r from-primary to-accent text-white border-0 font-medium text-xs h-8 px-4 shadow-apple-sm hover:shadow-apple-md transition-all duration-200"
             >
               Get Started
             </Button>
@@ -99,47 +99,47 @@ export const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border/50 backdrop-blur-xl bg-background/95 absolute left-0 right-0 top-16 shadow-lg animate-slide-up">
-            <div className="container mx-auto px-6 space-y-3">
+          <div className="md:hidden py-4 border-t border-border/40 backdrop-blur-xl bg-background/98 absolute left-0 right-0 top-14 shadow-apple-lg animate-slide-up">
+            <div className="container mx-auto px-6 space-y-2">
               <Link
                 to="/"
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+                className="block py-2 text-xs font-medium hover:text-primary transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/order"
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+                className="block py-2 text-xs font-medium hover:text-primary transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 AI Ordering
               </Link>
               <Link
                 to="/whatsapp-marketing"
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+                className="block py-2 text-xs font-medium hover:text-primary transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 WhatsApp Marketing
               </Link>
               <Link
                 to="/admin"
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+                className="block py-2 text-xs font-medium hover:text-primary transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 to="/pricing"
-                className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+                className="block py-2 text-xs font-medium hover:text-primary transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Pricing
               </Link>
-              <div className="pt-3 space-y-2 border-t border-border/50">
+              <div className="pt-3 space-y-2 border-t border-border/40">
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full text-xs h-9"
                   onClick={() => {
                     navigate("/login");
                     setMobileMenuOpen(false);
@@ -148,7 +148,7 @@ export const Navbar = () => {
                   Sign In
                 </Button>
                 <Button
-                  className="w-full bg-gradient-to-r from-primary to-accent text-white border-0"
+                  className="w-full bg-gradient-to-r from-primary to-accent text-white border-0 text-xs h-9"
                   onClick={() => {
                     navigate("/signup");
                     setMobileMenuOpen(false);
