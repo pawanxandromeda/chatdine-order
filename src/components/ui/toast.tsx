@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva, type VariantProps } from "class-variance-authority";
-import { X } from "lucide-react";
+import { X, Check, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -11,37 +12,80 @@ const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Viewport
-    ref={ref}
-    className={cn(
-      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
-      className,
-    )}
-    {...props}
-  />
+  <ToastPrimitives.Viewport asChild ref={ref} {...props}>
+    <motion.div
+      className={cn(
+        "fixed bottom-4 right-4 z-[100] flex flex-col gap-3 p-2 w-[380px] max-w-full sm:w-[420px]",
+        className
+      )}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    />
+  </ToastPrimitives.Viewport>
 ));
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  "group relative flex w-full items-start justify-between rounded-xl border p-4 shadow-xl transition-all backdrop-blur-sm " +
+  "data-[state=open]:animate-in data-[state=closed]:animate-out " +
+  "data-[state=closed]:fade-out-80 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-right-full hover:scale-[1.02] hover:shadow-2xl",
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        destructive: "destructive group border-destructive bg-destructive text-destructive-foreground",
+        default:
+          "border border-gray-200 bg-white/95 text-gray-900 shadow-sm",
+        destructive:
+          "border border-red-300 bg-red-600 text-white shadow-md",
+        success:
+          "border border-green-300 bg-green-600 text-white shadow-md",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
-  return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />;
+  return (
+    <ToastPrimitives.Root asChild ref={ref} {...props}>
+      <motion.div
+        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.8 }}
+        transition={{
+          type: "spring",
+          stiffness: 350,
+          damping: 25,
+        }}
+        className={cn(toastVariants({ variant }), className)}
+      >
+        {variant === "success" && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute left-2 top-2 rounded-full bg-green-500 p-1"
+          >
+            <Check className="h-4 w-4 text-white" />
+          </motion.div>
+        )}
+        {variant === "destructive" && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute left-2 top-2 rounded-full bg-red-500 p-1"
+          >
+            <AlertCircle className="h-4 w-4 text-white" />
+          </motion.div>
+        )}
+        <div className="pl-8">{props.children}</div>
+      </motion.div>
+    </ToastPrimitives.Root>
+  );
 });
 Toast.displayName = ToastPrimitives.Root.displayName;
 
@@ -82,7 +126,7 @@ const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Title ref={ref} className={cn("text-sm font-semibold", className)} {...props} />
+  <ToastPrimitives.Title ref={ref} className={cn("text-sm font-semibold flex items-center gap-2", className)} {...props} />
 ));
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
@@ -94,13 +138,28 @@ const ToastDescription = React.forwardRef<
 ));
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
+// ✅ Tick animation for success toast
+const ToastSuccessTick = () => (
+  <span className="ml-1 inline-block w-5 h-5">
+    <Check className="w-5 h-5 text-white animate-checkmark" />
+    <style>{`
+      @keyframes checkmark {
+        0% { stroke-dashoffset: 20; opacity: 0; transform: scale(0.5); }
+        50% { opacity: 1; transform: scale(1.2); }
+        100% { stroke-dashoffset: 0; transform: scale(1); }
+      }
+      .animate-checkmark {
+        stroke-dasharray: 20;
+        stroke-dashoffset: 20;
+        animation: checkmark 0.5s ease-out forwards;
+      }
+    `}</style>
+  </span>
+);
 
-type ToastActionElement = React.ReactElement<typeof ToastAction>;
+export type ToastProps = React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>;
 
 export {
-  type ToastProps,
-  type ToastActionElement,
   ToastProvider,
   ToastViewport,
   Toast,
@@ -108,4 +167,5 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  ToastSuccessTick,
 };

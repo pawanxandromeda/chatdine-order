@@ -1,3 +1,4 @@
+// src/pages/Signup.tsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -23,10 +24,64 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSignup } from "../hooks/useAuth";
+import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleSignIn } from "../hooks/useAuth";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    restaurantName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [error, setError] = useState('');
+
+  const { mutate: signup, isPending: isSigningUp } = useSignup();
+  const { mutate: googleSignIn, isPending: isGoogleSigningIn } = useGoogleSignIn();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (!termsAgreed) {
+      setError('You must agree to the terms');
+      return;
+    }
+
+    signup({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      restaurantName: formData.restaurantName,
+      email: formData.email,
+      password: formData.password,
+    });
+  };
+
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    const idToken = credentialResponse.credential;
+    if (idToken) {
+      googleSignIn(idToken);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google Sign-In failed');
+  };
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
@@ -139,120 +194,144 @@ const Signup = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm font-medium">
-                  First Name
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="firstName" placeholder="John" className="pl-10 h-12 rounded-2xl" />
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            <form onSubmit={handleSubmit}>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-sm font-medium">
+                    First Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="firstName" placeholder="John" className="pl-10 h-12 rounded-2xl" onChange={handleChange} value={formData.firstName} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-sm font-medium">
+                    Last Name
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="lastName" placeholder="Doe" className="pl-10 h-12 rounded-2xl" onChange={handleChange} value={formData.lastName} />
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm font-medium">
-                  Last Name
+                <Label htmlFor="restaurant" className="text-sm font-medium">
+                  Restaurant Name
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="lastName" placeholder="Doe" className="pl-10 h-12 rounded-2xl" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="restaurant" className="text-sm font-medium">
-                Restaurant Name
-              </Label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="restaurant"
-                  placeholder="Your Restaurant"
-                  className="pl-10 h-12 rounded-2xl"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email Address
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  className="pl-10 h-12 rounded-2xl"
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="pl-10 pr-10 h-12 rounded-2xl"
+                    id="restaurantName"
+                    placeholder="Your Restaurant"
+                    className="pl-10 h-12 rounded-2xl"
+                    onChange={handleChange}
+                    value={formData.restaurantName}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium">
-                  Confirm Password
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="pl-10 pr-10 h-12 rounded-2xl"
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-10 h-12 rounded-2xl"
+                    onChange={handleChange}
+                    value={formData.email}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
               </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10 h-12 rounded-2xl"
+                      onChange={handleChange}
+                      value={formData.password}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                    Confirm Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10 h-12 rounded-2xl"
+                      onChange={handleChange}
+                      value={formData.confirmPassword}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <Checkbox id="terms" className="mt-1" checked={termsAgreed} onCheckedChange={(checked) => setTermsAgreed(!!checked)} />
+                <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
+                  I agree to the{" "}
+                  <Link to="/terms" className="text-primary hover:text-primary/80">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" className="text-primary hover:text-primary/80">
+                    Privacy Policy
+                  </Link>
+                </label>
+              </div>
+
+              <Button type="submit" className="w-full h-12 rounded-2xl premium-gradient text-white font-medium" disabled={isSigningUp}>
+                {isSigningUp ? 'Signing Up...' : 'Create Account'}
+              </Button>
+            </form>
+
+            <div className="flex items-center my-4">
+              <div className="flex-1 h-px bg-border" />
+              <p className="px-3 text-sm text-muted-foreground">Or</p>
+              <div className="flex-1 h-px bg-border" />
             </div>
 
-            <div className="flex items-start space-x-2">
-              <Checkbox id="terms" className="mt-1" />
-              <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
-                I agree to the{" "}
-                <Link to="/terms" className="text-primary hover:text-primary/80">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link to="/privacy" className="text-primary hover:text-primary/80">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-
-            <Button className="w-full h-12 rounded-2xl premium-gradient text-white font-medium">
-              Create Account
-            </Button>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              width="100%"
+              text="signup_with"
+            />
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}

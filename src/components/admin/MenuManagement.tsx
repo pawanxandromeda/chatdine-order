@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/pages/MenuManagement.tsx
+import { useState, useRef } from "react";
 import { Plus, Edit, Trash2, Image as ImageIcon, Info, Sparkles, Crown, TrendingUp, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,50 +14,122 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { useMenuItems, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, useToggleFeatured, useToggleAvailable } from "../../hooks/useMenu";
 
 interface MenuItem {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   price: number;
   image?: string;
   category: string;
   available: boolean;
-  featured?: boolean;
+  featured: boolean;
 }
 
-const mockItems: MenuItem[] = [
-  {
-    id: "1",
-    name: "Classic Burger",
-    description: "Juicy beef patty with fresh lettuce, tomato, and our signature special sauce",
-    price: 12.99,
-    category: "Mains",
-    available: true,
-    featured: true,
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
-  },
-  {
-    id: "2",
-    name: "Caesar Salad",
-    description: "Crisp romaine lettuce with aged parmesan, homemade croutons, and classic caesar dressing",
-    price: 8.99,
-    category: "Salads",
-    available: true,
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-  },
-];
+const initialFormData = {
+  name: '',
+  description: '',
+  price: 0,
+  category: '',
+  available: true,
+  featured: false,
+  image: null as File | null,
+};
 
 export const MenuManagement = () => {
-  const [items, setItems] = useState<MenuItem[]>(mockItems);
-  const [isAdding, setIsAdding] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { data: items = [], isLoading } = useMenuItems();
+  const { mutate: createItem, isPending: isCreating } = useCreateMenuItem();
+  const { mutate: updateItem, isPending: isUpdating } = useUpdateMenuItem();
+  const { mutate: deleteItem, isPending: isDeleting } = useDeleteMenuItem();
+  const { mutate: toggleFeatured } = useToggleFeatured();
+  const { mutate: toggleAvailable } = useToggleAvailable();
 
-  const toggleFeatured = (id: string) => {
-    setItems(items.map(item => 
-      item.id === id ? { ...item, featured: !item.featured } : item
-    ));
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [formData, setFormData] = useState({ ...initialFormData });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: id === 'price' ? parseFloat(value) : value }));
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, image: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('description', formData.description);
+    data.append('price', formData.price.toString());
+    data.append('category', formData.category);
+    data.append('available', formData.available.toString());
+    data.append('featured', formData.featured.toString());
+    if (formData.image) data.append('image', formData.image);
+
+    if (editingItem) {
+      updateItem({ id: editingItem._id, data }, {
+        onSuccess: () => {
+          resetForm();
+        },
+      });
+    } else {
+      createItem(data, {
+        onSuccess: () => {
+          resetForm();
+          setIsAdding(false);
+        },
+      });
+    }
+  };
+
+  const handleEdit = (item: MenuItem) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category: item.category,
+      available: item.available,
+      featured: item.featured,
+      image: null,
+    });
+    setImagePreview(item.image || null);
+    setIsAdding(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      deleteItem(id);
+    }
+  };
+
+  const handleToggleAvailable = (id: string, available: boolean) => {
+    toggleAvailable({ id, available });
+  };
+
+  const handleToggleFeatured = (id: string) => {
+    toggleFeatured(id);
+  };
+
+  const resetForm = () => {
+    setFormData({ ...initialFormData });
+    setEditingItem(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  if (isLoading) {
+    return <div>Loading menu items...</div>;
+  }
 
   return (
     <TooltipProvider>
@@ -78,7 +151,10 @@ export const MenuManagement = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                onClick={() => setIsAdding(!isAdding)}
+                onClick={() => {
+                  resetForm();
+                  setIsAdding(true);
+                }}
                 className="rounded-2xl premium-gradient hover-lift transition-all duration-300 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-300" />
@@ -92,15 +168,15 @@ export const MenuManagement = () => {
           </Tooltip>
         </div>
 
-        {/* Add Item Form */}
+        {/* Add/Edit Item Form */}
         {isAdding && (
           <Card className="glass p-6 border-border/50 animate-slide-up hover-lift transition-all duration-300 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 to-primary/20" />
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Add New Menu Item</h3>
+              <h3 className="text-lg font-semibold">{editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}</h3>
             </div>
-            <div className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium flex items-center gap-1">
@@ -118,6 +194,9 @@ export const MenuManagement = () => {
                     id="name"
                     placeholder="e.g., Classic Burger"
                     className="rounded-2xl h-11 transition-all duration-200 focus:scale-[1.02]"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -138,6 +217,9 @@ export const MenuManagement = () => {
                     step="0.01"
                     placeholder="12.99"
                     className="rounded-2xl h-11 transition-all duration-200 focus:scale-[1.02]"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -150,6 +232,9 @@ export const MenuManagement = () => {
                   id="description"
                   placeholder="Describe your dish with appealing details and key ingredients..."
                   className="rounded-2xl min-h-[100px] transition-all duration-200 focus:scale-[1.02] resize-none"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -162,6 +247,9 @@ export const MenuManagement = () => {
                     id="category"
                     placeholder="e.g., Mains, Appetizers, Desserts"
                     className="rounded-2xl h-11 transition-all duration-200 focus:scale-[1.02]"
+                    value={formData.category}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -176,48 +264,70 @@ export const MenuManagement = () => {
                       </TooltipContent>
                     </Tooltip>
                   </Label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    className="hidden"
+                  />
                   <Button
+                    type="button"
                     variant="outline"
                     className="w-full rounded-2xl h-11 transition-all duration-200 hover:scale-[1.02] group"
+                    onClick={() => fileInputRef.current?.click()}
                   >
                     <ImageIcon className="h-4 w-4 mr-2 transition-transform group-hover:scale-110" />
-                    Upload Image
+                    {formData.image || imagePreview ? 'Change Image' : 'Upload Image'}
                   </Button>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" />
+                  )}
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center gap-3">
-                  <Switch id="available" defaultChecked />
+                  <Switch 
+                    id="available" 
+                    checked={formData.available} 
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, available: checked }))}
+                  />
                   <Label htmlFor="available" className="cursor-pointer text-sm font-medium">
                     Available for Ordering
                   </Label>
                 </div>
                 <div className="flex gap-2">
                   <Button
+                    type="button"
                     variant="outline"
-                    onClick={() => setIsAdding(false)}
+                    onClick={() => {
+                      setIsAdding(false);
+                      resetForm();
+                    }}
                     className="rounded-2xl transition-all duration-200 hover:scale-105"
                   >
                     Cancel
                   </Button>
-                  <Button className="rounded-2xl transition-all duration-200 hover:scale-105 premium-gradient">
-                    Add Item
+                  <Button 
+                    type="submit" 
+                    className="rounded-2xl transition-all duration-200 hover:scale-105 premium-gradient"
+                    disabled={isCreating || isUpdating}
+                  >
+                    {editingItem ? (isUpdating ? 'Updating...' : 'Update Item') : (isCreating ? 'Adding...' : 'Add Item')}
                   </Button>
                 </div>
               </div>
-            </div>
+            </form>
           </Card>
         )}
 
         {/* Menu Items Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((item) => (
+          {items.map((item: MenuItem) => (
             <Card
-              key={item.id}
+              key={item._id}
               className="glass overflow-hidden border-border/50 animate-slide-up transition-all duration-300 group relative"
-              onMouseEnter={() => setHoveredItem(item.id)}
-              onMouseLeave={() => setHoveredItem(null)}
             >
               {/* Featured Badge */}
               {item.featured && (
@@ -249,7 +359,7 @@ export const MenuManagement = () => {
                     <p className="text-sm text-muted-foreground mt-1">{item.category}</p>
                   </div>
                   <span className="text-lg font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-                    ${item.price}
+                    ${item.price.toFixed(2)}
                   </span>
                 </div>
                 
@@ -265,6 +375,7 @@ export const MenuManagement = () => {
                           <Switch 
                             checked={item.available} 
                             className="data-[state=checked]:bg-green-500"
+                            onCheckedChange={(checked) => handleToggleAvailable(item._id, checked)}
                           />
                           <span className={`text-xs font-medium ${item.available ? 'text-green-600' : 'text-muted-foreground'}`}>
                             {item.available ? "Available" : "Out of stock"}
@@ -277,14 +388,14 @@ export const MenuManagement = () => {
                     </Tooltip>
                   </div>
                   
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex gap-1 transition-opacity duration-300">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button 
                           size="icon" 
                           variant="ghost" 
                           className="h-8 w-8 rounded-lg transition-all duration-200 hover:scale-110 hover:bg-primary/10"
-                          onClick={() => toggleFeatured(item.id)}
+                          onClick={() => handleToggleFeatured(item._id)}
                         >
                           {item.featured ? (
                             <EyeOff className="h-4 w-4" />
@@ -304,6 +415,7 @@ export const MenuManagement = () => {
                           size="icon" 
                           variant="ghost" 
                           className="h-8 w-8 rounded-lg transition-all duration-200 hover:scale-110 hover:bg-blue-500/10"
+                          onClick={() => handleEdit(item)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -319,6 +431,8 @@ export const MenuManagement = () => {
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8 rounded-lg transition-all duration-200 hover:scale-110 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => handleDelete(item._id)}
+                          disabled={isDeleting}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

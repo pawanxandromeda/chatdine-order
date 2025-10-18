@@ -47,22 +47,15 @@ export default {
           DEFAULT: "hsl(210, 100%, 52%)",  // blue
           foreground: "hsl(0, 0%, 100%)",
         },
-        "gray-accent": {
-    DEFAULT: "hsla(0, 0%, 60%, 1.00)",         // Light gray
-    foreground: "hsl(220, 25%, 10%)",   // Dark text
-    glass: "hsla(0, 0%, 90%, 0.25)",    // Semi-transparent glass effect
-    elevated: "hsla(0, 0%, 90%, 0.95)", // Elevated overlay
-  },
-        popover: {
-          DEFAULT: "hsla(0, 0%, 100%, 0.9)",
-          foreground: "hsl(220, 25%, 10%)",
-        },
-        card: {
-    DEFAULT: "hsla(0, 0%, 92%, 1.00)",          // Use gray-accent DEFAULT
-    foreground: "hsl(220, 25%, 10%)",    // Use gray-accent foreground
-    glass: "hsla(0, 0%, 90%, 0.25)",     // Use gray-accent glass
-    elevated: "hsla(0, 0%, 90%, 0.95)",  // Use gray-accent elevated
-  },
+       
+ card: {
+  DEFAULT: "hsla(210, 65%, 92%, 0.6)",   // Light bluish base with a clean glassy feel
+  foreground: "hsl(210, 40%, 20%)",      // Deep blue-gray text color (readable on light backgrounds)
+  glass: "hsla(210, 70%, 95%, 0.3)",     // Frosted glass blue for transparency effects
+  elevated: "hsla(210, 60%, 88%, 0.95)", // Richer light blue for elevated layers or hover
+},
+
+
         sidebar: {
           DEFAULT: "hsla(0, 0%, 100%, 0.8)",
           foreground: "hsl(220, 25%, 10%)",

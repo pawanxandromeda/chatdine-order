@@ -8,7 +8,6 @@ const menuItems = [
   { icon: UtensilsCrossed, label: "Menu", path: "/admin", tab: "menu" },
   { icon: ShoppingBag, label: "Orders", path: "/admin", tab: "orders" },
   { icon: CreditCard, label: "Payments", path: "/admin", tab: "payments" },
-  { icon: Crown, label: "Subscription", path: "/admin", tab: "subscription" },
   { icon: QrCode, label: "QR Codes", path: "/admin", tab: "qr" },
   { icon: BarChart3, label: "Analytics", path: "/admin", tab: "analytics" },
 ];
@@ -23,14 +22,17 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [activeHover, setActiveHover] = useState<string | null>(null);
 
-  const expandedWidth = "w-64";
+  const expandedWidth = "w-72 lg:w-64"; // slightly wider on large screens for better spacing
   const collapsedWidth = "w-20";
 
   return (
-    <aside
+    <>
+      <aside
+      // Make this sidebar fixed to the viewport so it never scrolls with page content
       className={cn(
-        "min-h-screen bg-card/95 backdrop-blur-xl rounded-r-[45px] border-r border-border/50 sticky top-0 transition-all duration-500 ease-out overflow-hidden group/sidebar",
-        isCollapsed ? collapsedWidth : expandedWidth,
+        "fixed  left-0 top-0 h-screen z-50 bg-card/95 backdrop-blur-xl rounded-r-[45px] border-r border-border/50 transition-all duration-500 ease-out overflow-hidden group/sidebar",
+        // Use transform-based width animation for smoother GPU-accelerated transitions
+        isCollapsed ? `translate-x-0 ${collapsedWidth}` : `translate-x-0 ${expandedWidth}`,
         isHovered && !isCollapsed && "shadow-2xl shadow-primary/10"
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -38,6 +40,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
         setIsHovered(false);
         setActiveHover(null);
       }}
+      aria-label="Admin sidebar"
+      role="navigation"
     >
       {/* Header */}
       <div className="p-6 border-b border-border/30 relative z-10">
@@ -49,8 +53,10 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
             </div>
             <button
               onClick={() => setIsCollapsed(false)}
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
               className={cn(
-                "w-12 h-12 mx-auto rounded-2xl bg-white/10 backdrop-blur-lg flex items-center justify-center transition-all duration-500 hover:scale-110 shadow-xl group/toggle relative overflow-hidden",
+                "w-12 h-12 mx-auto rounded-2xl bg-white/10 backdrop-blur-lg flex items-center justify-center transition-transform duration-300 hover:scale-110 shadow-xl group/toggle relative overflow-hidden",
                 "border border-white/20"
               )}
             >
@@ -94,8 +100,11 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-expanded={!isCollapsed}
+              aria-label={isCollapsed ? "Open sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Open sidebar" : "Collapse sidebar"}
               className={cn(
-                "absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 mr-4 rounded-full border border-border/80 bg-card/80 backdrop-blur-xl flex items-center justify-center transition-all duration-500 hover:scale-110 hover:shadow-xl group/toggle z-20 shadow-lg",
+                "absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 mr-4 rounded-full border border-border/80 bg-card/80 backdrop-blur-xl flex items-center justify-center transition-transform duration-300 hover:scale-110 hover:shadow-xl group/toggle z-20 shadow-lg",
                 isCollapsed ? "rotate-180 bg-primary/10 border-primary/20" : "hover:bg-primary/10 hover:border-primary/30"
               )}
             >
@@ -125,9 +134,11 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
               onMouseEnter={() => setActiveHover(item.tab)}
               onMouseLeave={() => setActiveHover(null)}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 relative overflow-hidden group/nav-item",
+                "w-full flex items-center gap-3 px-4 py-3 rounded-2xl relative overflow-hidden group/nav-item",
+                // prefer transform and opacity changes for fluidity
+                "transition-transform duration-300 ease-out",
                 isActive
-                  ? "premium-gradient text-white shadow-2xl scale-[1.02] border border-primary/20"
+                  ? "premium-gradient text-white shadow-2xl scale-[1.03] border border-primary/20"
                   : "hover:bg-muted/30 text-muted-foreground hover:text-foreground border border-transparent hover:border-primary/10"
               )}
             >
@@ -141,7 +152,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
               <div className="absolute inset-0 bg-white/20 rounded-2xl scale-0 group-hover/nav-item:scale-100 transition-transform duration-500 opacity-0 group-hover/nav-item:opacity-100" />
               <div
                 className={cn(
-                  "relative z-10 transition-all duration-500 flex-shrink-0",
+                  "relative z-10 transition-transform duration-300 flex-shrink-0",
                   isActive && "scale-110",
                   isItemHovered && !isActive && "scale-105"
                 )}
@@ -159,8 +170,9 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
               </div>
               <div
                 className={cn(
-                  "flex items-center justify-between flex-1 transition-all duration-500 overflow-hidden",
-                  isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                  "flex items-center justify-between flex-1 overflow-hidden",
+                  // smoother fade/width animation for the label
+                  isCollapsed ? "w-0 opacity-0 scale-95" : "w-auto opacity-100 scale-100 transition-all duration-300"
                 )}
               >
                 <span
@@ -173,7 +185,10 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
                 </span>
               </div>
               {isCollapsed && (
-                <div className="absolute left-full ml-3 px-3 py-2 bg-foreground/95 backdrop-blur-xl text-background text-sm rounded-xl opacity-0 group-hover/nav-item:opacity-100 transition-all duration-300 whitespace-nowrap z-50 shadow-2xl border border-border/50">
+                <div
+                  role="tooltip"
+                  className="absolute left-full ml-3 px-3 py-2 bg-foreground/95 backdrop-blur-xl text-background text-sm rounded-xl opacity-0 group-hover/nav-item:opacity-100 transition-all duration-300 whitespace-nowrap z-50 shadow-2xl border border-border/50"
+                >
                   <span className="font-medium">{item.label}</span>
                   <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-foreground rotate-45" />
                 </div>
@@ -239,5 +254,15 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       {/* Bottom Gradient Overlay */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-card/80 to-transparent pointer-events-none" />
     </aside>
+      {/* Spacer so content sits to the right of the fixed sidebar */}
+      <div
+        aria-hidden
+        className={cn(
+          isCollapsed ? collapsedWidth : expandedWidth,
+          // hide on very small screens if you prefer responsive collapsing
+          "flex-shrink-0"
+        )}
+      />
+    </>
   );
 };

@@ -224,7 +224,7 @@ export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
                 {/* Premium Header */}
                 <div className="premium-gradient p-4 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
-                  <DropdownMenuLabel className="text-white/90 font-semibold text-sm flex items-center gap-2">
+                  <DropdownMenuLabel className="text-white/90 font-semibold rounded-2xl text-sm flex items-center gap-2">
                     <Shield className="w-4 h-4" />
                     Administrator Account
                   </DropdownMenuLabel>
@@ -238,28 +238,43 @@ export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
                 </div>
                 
                 <div className="p-2">
-                  <DropdownMenuItem className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700">
-                    <User className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
-                    <div>
-                      <span className="font-medium block group-hover/item:text-white">Profile & Account</span>
-                      <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Manage personal settings</span>
-                    </div>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700">
-                    <Settings className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
-                    <div>
-                      <span className="font-medium block group-hover/item:text-white">Settings</span>
-                      <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Preferences & configuration</span>
-                    </div>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/profile"
+                      className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700 flex items-center"
+                    >
+                      <User className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
+                      <div>
+                        <span className="font-medium block group-hover/item:text-white">Profile & Account</span>
+                        <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Manage personal settings</span>
+                      </div>
+                    </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700">
-                    <CreditCard className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
-                    <div>
-                      <span className="font-medium block group-hover/item:text-white">Billing & Subscription</span>
-                      <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Manage payments & plan</span>
-                    </div>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/settings"
+                      className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700 flex items-center"
+                    >
+                      <Settings className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
+                      <div>
+                        <span className="font-medium block group-hover/item:text-white">Settings</span>
+                        <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Preferences & configuration</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/subscription"
+                      className="rounded-lg cursor-pointer transition-all duration-200 hover:bg-primary/5 group/item p-3 text-gray-700 flex items-center"
+                    >
+                      <CreditCard className="w-4 h-4 mr-3 text-gray-600 group-hover/item:text-white transition-colors" />
+                      <div>
+                        <span className="font-medium block group-hover/item:text-white">Billing & Subscription</span>
+                        <span className="text-xs text-gray-500 group-hover/item:text-gray-300">Manage payments & plan</span>
+                      </div>
+                    </Link>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator className="my-2" />

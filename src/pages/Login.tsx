@@ -1,3 +1,4 @@
+// src/pages/Login.tsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LogIn, Check } from "lucide-react";
@@ -6,9 +7,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLogin } from "../hooks/useAuth";
+import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleSignIn } from "../hooks/useAuth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+
+  const { mutate: login, isPending: isLoggingIn } = useLogin();
+  const { mutate: googleSignIn, isPending: isGoogleSigningIn } = useGoogleSignIn();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    login(formData);
+  };
+
+  const handleGoogleSuccess = (credentialResponse: any) => {
+    const idToken = credentialResponse.credential;
+    if (idToken) {
+      googleSignIn(idToken);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google Sign-In failed');
+  };
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
@@ -25,57 +60,79 @@ const Login = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  className="pl-10 h-12 rounded-2xl"
-                />
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-10 h-12 rounded-2xl"
+                    onChange={handleChange}
+                    value={formData.email}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="pl-10 pr-10 h-12 rounded-2xl"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10 h-12 rounded-2xl"
+                    onChange={handleChange}
+                    value={formData.password}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => setRememberMe(!!checked)} />
+                  <Label htmlFor="remember" className="text-sm">
+                    Remember me
+                  </Label>
+                </div>
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:text-primary/80 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                  Forgot Password?
+                </Link>
               </div>
+
+              <Button type="submit" className="w-full h-12 rounded-2xl premium-gradient text-white font-medium" disabled={isLoggingIn}>
+                {isLoggingIn ? 'Signing In...' : 'Sign In'}
+              </Button>
+            </form>
+
+            <div className="flex items-center my-4">
+              <div className="flex-1 h-px bg-border" />
+              <p className="px-3 text-sm text-muted-foreground">Or</p>
+              <div className="flex-1 h-px bg-border" />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember" className="text-sm">
-                  Remember me
-                </Label>
-              </div>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary hover:text-primary/80 transition-colors"
-              >
-                Forgot Password?
-              </Link>
+            <div className={isGoogleSigningIn ? "opacity-60 pointer-events-none" : ""} aria-busy={isGoogleSigningIn}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                width="100%"
+                text="signin_with"
+              />
             </div>
-
-            <Button className="w-full h-12 rounded-2xl premium-gradient text-white font-medium">
-              Sign In
-            </Button>
 
             <p className="text-center text-sm text-muted-foreground">
               Don’t have an account?{" "}
