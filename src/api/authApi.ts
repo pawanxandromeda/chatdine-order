@@ -46,7 +46,7 @@ export const loginApi = async (data: {
       throw error.response.data;
     }
     throw error;
-  }
+  } 
 };
 
 export const googleSignInApi = async (idToken: string) => {

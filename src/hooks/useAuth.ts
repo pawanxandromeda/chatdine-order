@@ -1,22 +1,31 @@
+// src/hooks/useAuthHooks.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { signupApi, loginApi, googleSignInApi, AuthResponse } from '../api/authApi';
 import { User } from '../atoms/userAtom';
 import { toast } from 'sonner';
+import { useProperAuth } from '../auth/ProperAuthProvider'; // ✅ Import context
 
 // ✅ Signup hook
 export const useSignup = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { setUser, setAccessToken } = useProperAuth(); // ✅ Context setters
 
   return useMutation<AuthResponse, any, any>({
     mutationFn: signupApi,
     onSuccess: (data) => {
+      // ✅ Set global auth state
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+
+      // ✅ Cache user for react-query
       queryClient.setQueryData(['user'], data.user);
+
+      // ✅ Save refresh token separately
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
 
-      // ✅ Sonner toast
       toast.success('Signup Successful 🎉', {
         description: 'You have signed up successfully.',
       });
@@ -36,13 +45,18 @@ export const useSignup = () => {
 export const useLogin = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { setUser, setAccessToken } = useProperAuth();
 
   return useMutation<AuthResponse, any, any>({
     mutationFn: loginApi,
     onSuccess: (data) => {
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+
       queryClient.setQueryData(['user'], data.user);
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
+ 
 
       toast.success('Login Successful 🎯', {
         description: 'You have logged in successfully.',
@@ -63,12 +77,15 @@ export const useLogin = () => {
 export const useGoogleSignIn = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { setUser, setAccessToken } = useProperAuth();
 
   return useMutation<AuthResponse, any, any>({
     mutationFn: googleSignInApi,
     onSuccess: (data) => {
+      setUser(data.user);
+      setAccessToken(data.accessToken);
+
       queryClient.setQueryData(['user'], data.user);
-      localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
 
       toast.success('Google Sign-In Successful 🚀', {
@@ -91,9 +108,8 @@ export const useAuthUser = () => {
   return useQuery<User | null>({
     queryKey: ['user'],
     queryFn: async () => {
-      const accessToken = localStorage.getItem('accessToken');
-      const user = accessToken ? JSON.parse(localStorage.getItem('user') || 'null') : null;
-      return user;
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
     },
     initialData: null,
   });

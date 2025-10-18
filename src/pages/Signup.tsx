@@ -194,8 +194,13 @@ const Signup = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {error && <p className="text-red-500 text-center">{error}</p>}
-            <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg text-center border border-red-200">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-sm font-medium">
@@ -203,7 +208,14 @@ const Signup = () => {
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="firstName" placeholder="John" className="pl-10 h-12 rounded-2xl" onChange={handleChange} value={formData.firstName} />
+                    <Input 
+                      id="firstName" 
+                      placeholder="John" 
+                      className="pl-10 h-12 rounded-2xl" 
+                      onChange={handleChange} 
+                      value={formData.firstName} 
+                      required 
+                    />
                   </div>
                 </div>
 
@@ -213,7 +225,14 @@ const Signup = () => {
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="lastName" placeholder="Doe" className="pl-10 h-12 rounded-2xl" onChange={handleChange} value={formData.lastName} />
+                    <Input 
+                      id="lastName" 
+                      placeholder="Doe" 
+                      className="pl-10 h-12 rounded-2xl" 
+                      onChange={handleChange} 
+                      value={formData.lastName} 
+                      required 
+                    />
                   </div>
                 </div>
               </div>
@@ -230,6 +249,7 @@ const Signup = () => {
                     className="pl-10 h-12 rounded-2xl"
                     onChange={handleChange}
                     value={formData.restaurantName}
+                    required
                   />
                 </div>
               </div>
@@ -247,6 +267,7 @@ const Signup = () => {
                     className="pl-10 h-12 rounded-2xl"
                     onChange={handleChange}
                     value={formData.email}
+                    required
                   />
                 </div>
               </div>
@@ -265,6 +286,7 @@ const Signup = () => {
                       className="pl-10 pr-10 h-12 rounded-2xl"
                       onChange={handleChange}
                       value={formData.password}
+                      required
                     />
                     <button
                       type="button"
@@ -289,6 +311,7 @@ const Signup = () => {
                       className="pl-10 pr-10 h-12 rounded-2xl"
                       onChange={handleChange}
                       value={formData.confirmPassword}
+                      required
                     />
                     <button
                       type="button"
@@ -301,8 +324,13 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="flex items-start space-x-2">
-                <Checkbox id="terms" className="mt-1" checked={termsAgreed} onCheckedChange={(checked) => setTermsAgreed(!!checked)} />
+              <div className="flex items-start space-x-2 pt-2">
+                <Checkbox 
+                  id="terms" 
+                  className="mt-1" 
+                  checked={termsAgreed} 
+                  onCheckedChange={(checked) => setTermsAgreed(!!checked)} 
+                />
                 <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
                   I agree to the{" "}
                   <Link to="/terms" className="text-primary hover:text-primary/80">
@@ -315,25 +343,36 @@ const Signup = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full h-12 rounded-2xl premium-gradient text-white font-medium" disabled={isSigningUp}>
-                {isSigningUp ? 'Signing Up...' : 'Create Account'}
+              <Button 
+                type="submit" 
+                className="w-full h-12 rounded-2xl premium-gradient text-white font-medium mt-4" 
+                disabled={isSigningUp}
+              >
+                {isSigningUp ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
 
-            <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-border" />
-              <p className="px-3 text-sm text-muted-foreground">Or</p>
-              <div className="flex-1 h-px bg-border" />
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
+              </div>
             </div>
 
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              width="100%"
-              text="signup_with"
-            />
+            <div className={`space-y-4 ${isGoogleSigningIn ? "opacity-60 pointer-events-none" : ""}`}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                width="100%"
+                text="signup_with"
+                size="large"
+                theme="filled_blue"
+              />
+            </div>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground pt-4">
               Already have an account?{" "}
               <Link
                 to="/login"

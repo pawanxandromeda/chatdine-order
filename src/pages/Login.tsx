@@ -30,7 +30,6 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     login(formData);
   };
 
@@ -60,8 +59,13 @@ const Login = () => {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {error && <p className="text-red-500 text-center">{error}</p>}
-            <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg text-center border border-red-200">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative">
@@ -73,6 +77,7 @@ const Login = () => {
                     className="pl-10 h-12 rounded-2xl"
                     onChange={handleChange}
                     value={formData.email}
+                    required
                   />
                 </div>
               </div>
@@ -88,6 +93,7 @@ const Login = () => {
                     className="pl-10 pr-10 h-12 rounded-2xl"
                     onChange={handleChange}
                     value={formData.password}
+                    required
                   />
                   <button
                     type="button"
@@ -99,10 +105,14 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => setRememberMe(!!checked)} />
-                  <Label htmlFor="remember" className="text-sm">
+                  <Checkbox 
+                    id="remember" 
+                    checked={rememberMe} 
+                    onCheckedChange={(checked) => setRememberMe(!!checked)} 
+                  />
+                  <Label htmlFor="remember" className="text-sm cursor-pointer">
                     Remember me
                   </Label>
                 </div>
@@ -114,28 +124,37 @@ const Login = () => {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-12 rounded-2xl premium-gradient text-white font-medium" disabled={isLoggingIn}>
+              <Button 
+                type="submit" 
+                className="w-full h-12 rounded-2xl premium-gradient text-white font-medium mt-4" 
+                disabled={isLoggingIn}
+              >
                 {isLoggingIn ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
 
-            <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-border" />
-              <p className="px-3 text-sm text-muted-foreground">Or</p>
-              <div className="flex-1 h-px bg-border" />
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-background text-muted-foreground">Or continue with</span>
+              </div>
             </div>
 
-            <div className={isGoogleSigningIn ? "opacity-60 pointer-events-none" : ""} aria-busy={isGoogleSigningIn}>
+            <div className={`space-y-4 ${isGoogleSigningIn ? "opacity-60 pointer-events-none" : ""}`}>
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 width="100%"
                 text="signin_with"
+                size="large"
+                theme="filled_blue"
               />
             </div>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Don’t have an account?{" "}
+            <p className="text-center text-sm text-muted-foreground pt-4">
+              Don't have an account?{" "}
               <Link
                 to="/signup"
                 className="text-primary font-medium hover:text-primary/80 transition-colors"
