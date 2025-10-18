@@ -32,7 +32,7 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 93%;
-    --input: 0 0% 93%;
+    --input: 100 8% 93%;
     --ring: 142 76% 36%;
 
     --radius: 1rem;
@@ -116,8 +116,13 @@
   }
   
   .premium-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(142 76% 52%) 100%);
-  }
+  background: linear-gradient(
+    135deg,
+   
+    hsl(210, 100%, 52%) 100%
+  );
+}
+
   
   /* Apple-style hover effects */
   .hover-lift {
@@ -384,4 +389,38 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+/* Add these to your global CSS */
+.glass-card {
+  @apply bg-gradient-to-br from-white/90 to-gray-50/80 backdrop-blur-md border border-white/60 shadow-glass-light;
+}
+
+.premium-card {
+  @apply bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 
+         border border-gray-300 shadow-md rounded-2xl;
+}
+
+
+.glass-morph {
+  @apply bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-lg border border-white/30 shadow-glass-light;
+}
+
+.depth-card {
+  @apply bg-white/95 backdrop-blur-xs border border-gray-200/80 shadow-depth rounded-2xl;
+}
+
+.floating-card {
+  @apply premium-card animate-float;
+}
+
+.glow-card {
+  @apply premium-card animate-glow;
+}
+
+.text-glow {
+  text-shadow: 0 0 30px hsla(210, 100%, 52%, 0.3);
+}
+
+.border-glow {
+  box-shadow: 0 0 20px hsla(210, 100%, 52%, 0.2), inset 0 1px 0 hsla(0, 0%, 100%, 0.8);
 }
