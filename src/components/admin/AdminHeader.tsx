@@ -2,6 +2,8 @@ import { Bell, Search, Settings, LogOut, User, ChevronDown, Sparkles, Crown, Shi
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAtom } from 'jotai';
+import { userAtom } from '@/atoms/userAtom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +20,7 @@ interface AdminHeaderProps {
 }
 
 export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
+    const [user] = useAtom(userAtom);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
@@ -80,7 +83,7 @@ export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
                 onBlur={() => setIsSearchExpanded(false)}
                 onMouseEnter={() => setHoveredIcon('search')}
                 onMouseLeave={() => setHoveredIcon(null)}
-                placeholder="Search orders, menu items, analytics..."
+                placeholder="Search orders/menu"
                 className={cn(
                   "pl-10 h-10 rounded-xl bg-white/80 border border-gray-300/80 backdrop-blur-sm transition-all duration-300",
                   "focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/30",
@@ -208,7 +211,7 @@ export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
                       <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm" />
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium text-gray-700">Admin</span>
+                      <span className="text-sm font-medium text-gray-700">  {user ? `${user.firstName} ${user.lastName}` : 'Guest'}</span>
                       <ChevronDown className={cn(
                         "w-4 h-4 text-gray-500 transition-transform duration-300",
                         hoveredIcon === 'profile' && "text-primary rotate-180"
