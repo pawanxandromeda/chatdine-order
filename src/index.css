@@ -51,8 +51,9 @@
     --shadow-apple-xl: 0 24px 48px 0 hsl(0 0% 0% / 0.16);
     
     /* Black section colors */
-    --black-section: 0 0% 3%;
-    --black-section-muted: 0 0% 20%;
+   --black-section: 0 0% 10%;
+--black-section-muted: 0 0% 28%;
+
   }
 
   .dark {
@@ -102,6 +103,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+   
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

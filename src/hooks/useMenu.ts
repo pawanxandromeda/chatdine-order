@@ -30,14 +30,10 @@ export const useCreateMenuItem = () => {
     mutationFn: createMenuItemApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu Item Created 🎉', {
-        description: 'The menu item was created successfully.',
-      });
+      toast.success('The menu item was created successfully.');
     },
     onError: (error: any) => {
-      toast.error('Create Failed ❌', {
-        description: error?.message || 'Failed to create menu item.',
-      });
+      toast.error(error?.message || 'Failed to create menu item.');
     },
   });
 };
@@ -53,14 +49,10 @@ export const useUpdateMenuItem = () => {
       updateMenuItemApi(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu Item Updated ✏️', {
-        description: 'The menu item was updated successfully.',
-      });
+      toast.success('The menu item was updated successfully.');
     },
     onError: (error: any) => {
-      toast.error('Update Failed ⚠️', {
-        description: error?.message || 'Failed to update menu item.',
-      });
+      toast.error(error?.message || 'Failed to update menu item.');
     },
   });
 };
@@ -75,14 +67,10 @@ export const useDeleteMenuItem = () => {
     mutationFn: deleteMenuItemApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Menu Item Deleted 🗑️', {
-        description: 'The menu item was deleted successfully.',
-      });
+      toast.success('The menu item was deleted successfully.');
     },
     onError: (error: any) => {
-      toast.error('Delete Failed ❌', {
-        description: error?.message || 'Failed to delete menu item.',
-      });
+      toast.error(error?.message || 'Failed to delete menu item.');
     },
   });
 };
@@ -97,14 +85,10 @@ export const useToggleFeatured = () => {
     mutationFn: toggleFeaturedApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Featured Status Updated 🌟', {
-        description: 'Menu item featured status updated successfully.',
-      });
+      toast.success('Menu item featured status updated successfully.');
     },
     onError: (error: any) => {
-      toast.error('Feature Toggle Failed ⚠️', {
-        description: error?.message || 'Failed to update featured status.',
-      });
+      toast.error(error?.message || 'Failed to update featured status.');
     },
   });
 };
@@ -120,14 +104,10 @@ export const useToggleAvailable = () => {
       toggleAvailableApi(id, available),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success('Availability Updated ✅', {
-        description: 'Menu item availability updated successfully.',
-      });
+      toast.success('Menu item availability updated successfully.');
     },
     onError: (error: any) => {
-      toast.error('Availability Toggle Failed ⚠️', {
-        description: error?.message || 'Failed to update availability.',
-      });
+      toast.error(error?.message || 'Failed to update availability.');
     },
   });
 };

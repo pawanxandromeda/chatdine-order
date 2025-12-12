@@ -18,12 +18,21 @@ export const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-70 transition-all duration-300">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-apple-sm">
-              <ChefHat className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-semibold text-base tracking-tight">Mevoo</span>
-          </Link>
+<img
+  src="/logo.svg"
+  alt="Logo"
+  className="
+    h-32 w-52
+    md:h-64 md:w-64
+    lg:h-72 lg:w-72
+    transition-all duration-300
+    mt-4
+    relative -left-5
+  "
+/>
+
+
+
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">

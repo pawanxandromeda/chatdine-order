@@ -2,7 +2,7 @@
 import { api } from './axiosInstance';
 
 export const getMenuItemsApi = async () => {
-  const response = await api.get('/menu');
+  const response = await api.get('/menu/get');
   return response.data.data;
 };
 

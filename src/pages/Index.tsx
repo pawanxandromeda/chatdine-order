@@ -332,10 +332,14 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <ChefHat className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">Mevoo</span>
+<img
+  src="/logo.svg"
+  alt="Logo"
+  className="-mt-2 -ml-2 h-40 w-40 md:h-48 md:w-48 lg:h-56 lg:w-56 transition-all duration-300"
+/>
+
+
+
               </div>
               <p className="text-white/60 leading-relaxed">
                 AI-powered ordering platform for modern restaurants
@@ -374,7 +378,7 @@ const Index = () => {
 
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-white/40 text-sm">
-              © 2024 Mevoo. All rights reserved.
+              © 2025 Mevoo. All rights reserved.
             </p>
             <div className="flex gap-6">
               <a href="#" className="text-white/40 hover:text-white transition-colors">

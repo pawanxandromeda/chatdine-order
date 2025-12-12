@@ -49,3 +49,8 @@ export const incrementScanCountApi = async (id: string): Promise<IQRCode> => {
   const response = await api.post(`/qrcode/${id}/scan`); // Assuming a scan endpoint exists
   return response.data.data;
 };
+export const getUserFoodCourtApi = async (): Promise<{ id: string; name?: string }> => {
+  const response = await api.get('/qrcode/user/foodcourt');
+  console.log('Foodcourt response:', response.data);
+  return response.data.data;
+};

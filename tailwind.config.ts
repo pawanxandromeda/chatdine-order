@@ -49,7 +49,7 @@ export default {
         },
        
  card: {
-  DEFAULT: "hsla(210, 65%, 92%, 0.6)",   // Light bluish base with a clean glassy feel
+  DEFAULT: "hsla(210, 65%, 90%, 0.6)",   // Light bluish base with a clean glassy feel
   foreground: "hsl(210, 40%, 20%)",      // Deep blue-gray text color (readable on light backgrounds)
   glass: "hsla(210, 70%, 95%, 0.3)",     // Frosted glass blue for transparency effects
   elevated: "hsla(210, 60%, 88%, 0.95)", // Richer light blue for elevated layers or hover

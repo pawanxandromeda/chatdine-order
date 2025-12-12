@@ -68,7 +68,7 @@ export const QRCodeManagement = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">QR Code Management</h2>
+              {/* <h2 className="text-2xl font-bold tracking-tight">QR Code Management</h2> */}
               <Badge variant="secondary" className="premium-gradient text-white border-0">
                 <Scan className="w-3 h-3 mr-1" />
                 {qrCodes.length} Codes

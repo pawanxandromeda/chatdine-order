@@ -3,39 +3,32 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { signupApi, loginApi, googleSignInApi, AuthResponse } from '../api/authApi';
 import { User } from '../atoms/userAtom';
+import { useProperAuth } from '../auth/ProperAuthProvider';
 import { toast } from 'sonner';
-import { useProperAuth } from '../auth/ProperAuthProvider'; // ✅ Import context
 
 // ✅ Signup hook
 export const useSignup = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { setUser, setAccessToken } = useProperAuth(); // ✅ Context setters
+  const { setUser, setAccessToken } = useProperAuth();
 
   return useMutation<AuthResponse, any, any>({
     mutationFn: signupApi,
     onSuccess: (data) => {
-      // ✅ Set global auth state
       setUser(data.user);
       setAccessToken(data.accessToken);
 
-      // ✅ Cache user for react-query
       queryClient.setQueryData(['user'], data.user);
-
-      // ✅ Save refresh token separately
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      toast.success('Signup Successful 🎉', {
-        description: 'You have signed up successfully.',
-      });
+      toast.success('Signup Successful — You have signed up successfully.');
 
       navigate('/admin');
     },
     onError: (error: any) => {
-      toast.error('Signup Failed ❌', {
-        description: error?.message || 'An error occurred during signup.',
-      });
+      toast.error(error?.message || 'An error occurred during signup.');
       console.error('Signup error:', error);
     },
   });
@@ -56,18 +49,14 @@ export const useLogin = () => {
       queryClient.setQueryData(['user'], data.user);
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
- 
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      toast.success('Login Successful 🎯', {
-        description: 'You have logged in successfully.',
-      });
+      toast.success('Login Successful — You have logged in successfully.');
 
       navigate('/admin');
     },
     onError: (error: any) => {
-      toast.error('Login Failed ⚠️', {
-        description: error?.message || 'An error occurred during login.',
-      });
+      toast.error(error?.message || 'An error occurred during login.');
       console.error('Login error:', error);
     },
   });
@@ -86,24 +75,22 @@ export const useGoogleSignIn = () => {
       setAccessToken(data.accessToken);
 
       queryClient.setQueryData(['user'], data.user);
+      localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      toast.success('Google Sign-In Successful 🚀', {
-        description: 'You have signed in with Google successfully.',
-      });
+      toast.success('Google Sign-In Successful — You have signed in with Google successfully.');
 
       navigate('/admin');
     },
     onError: (error: any) => {
-      toast.error('Google Sign-In Failed 😞', {
-        description: error?.message || 'An error occurred during Google Sign-In.',
-      });
+      toast.error(error?.message || 'An error occurred during Google Sign-In.');
       console.error('Google SignIn error:', error);
     },
   });
 };
 
-// ✅ Get current auth user
+// ✅ Get current authenticated user
 export const useAuthUser = () => {
   return useQuery<User | null>({
     queryKey: ['user'],

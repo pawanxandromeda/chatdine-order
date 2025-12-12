@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { ChatInterface } from "@/components/order/ChatInterface";
 import { MenuView } from "@/components/order/MenuView";
 import { Cart } from "@/components/order/Cart";
@@ -17,7 +18,8 @@ export interface CartItem {
 const Order = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showPayment, setShowPayment] = useState(false);
-
+  const { tableNumber } = useParams<{ tableNumber: string }>();
+  
   const addToCart = (item: Omit<CartItem, "id">) => {
     setCartItems((prev) => {
       const existing = prev.find((i) => i.name === item.name);

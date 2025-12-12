@@ -1,16 +1,74 @@
 import { useState } from "react";
 import { Dashboard } from "@/components/admin/Dashboard";
 import { MenuManagement } from "@/components/admin/MenuManagement";
-import { OrdersManagement } from "@/components/admin/OrdersManagement";
+import OrdersManagement from "@/components/admin/OrdersManagement";
 import { QRCodeManagement } from "@/components/admin/QRCodeManagement";
 import { Analytics } from "@/components/admin/Analytics";
 import { PaymentSettings } from "@/components/admin/PaymentSettings";
 import { SubscriptionManagement } from "@/components/admin/SubscriptionManagement";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { FoodCourt } from "@/components/admin/FoodCourt";
+interface OrderItem {
+  menuId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  notes?: string;
+  variations?: {
+    name: string;
+    price: number;
+  }[];
+}
+
+export type OrderStatus = "pending" | "confirmed" | "preparing" | "ready" | "served" | "cancelled";
+
+export interface IOrder {
+  _id: string;
+  orderId: string;
+  tableNumber: string;
+  items: OrderItem[];
+  total: number;
+  subtotal: number;
+  tax: number;
+  serviceCharge: number;
+  status: OrderStatus;
+  vendor: string;
+  foodCourt?: string;
+  customer?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+  };
+  parentOrderId?: string;
+  notes?: string;
+  estimatedTime?: number;
+  preparationStartTime?: Date;
+  readyAt?: Date;
+  servedAt?: Date;
+  cancelledAt?: Date;
+  cancelledReason?: string;
+  paymentMethod?: "cash" | "card" | "wallet";
+  paymentStatus: "pending" | "paid" | "refunded";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
+
+  const handleOrderClick = (order: IOrder) => {
+    setSelectedOrder(order);
+    setActiveTab("orders");
+  };
+
+  const handleNavigateToOrders = () => {
+    setSelectedOrder(null);
+    setActiveTab("orders");
+  };
 
   const getHeaderContent = () => {
     switch (activeTab) {
@@ -101,13 +159,21 @@ const Admin = () => {
 
         <main className="flex-1 p-6">
           <div className="animate-fade-in">
-            {activeTab === "dashboard" && <Dashboard />}
+            {activeTab === "dashboard" && (
+              <Dashboard 
+                onOrderClick={handleOrderClick}
+                onNavigateToOrders={handleNavigateToOrders}
+              />
+            )}
             {activeTab === "menu" && <MenuManagement />}
-            {activeTab === "orders" && <OrdersManagement />}
+            {activeTab === "orders" && (
+              <OrdersManagement />
+            )}
             {activeTab === "payments" && <PaymentSettings />}
             {activeTab === "subscription" && <SubscriptionManagement />}
             {activeTab === "qr" && <QRCodeManagement />}
             {activeTab === "analytics" && <Analytics />}
+            {activeTab === "foodcourt" && <FoodCourt />}
           </div>
         </main>
       </div>

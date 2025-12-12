@@ -138,7 +138,7 @@ export const MenuManagement = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">Menu Items</h2>
+              {/* <h2 className="text-2xl font-bold tracking-tight">Menu Items</h2> */}
               <Badge variant="secondary" className="premium-gradient text-white border-0">
                 <Crown className="w-3 h-3 mr-1" />
                 {items.length} Items
@@ -201,7 +201,7 @@ export const MenuManagement = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price" className="text-sm font-medium flex items-center gap-1">
-                    Price ($)
+                    Price (₹)
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help transition-colors hover:text-primary" />
@@ -288,9 +288,9 @@ export const MenuManagement = () => {
 
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center gap-3">
-                  <Switch 
-                    id="available" 
-                    checked={formData.available} 
+                  <Switch
+                    id="available"
+                    checked={formData.available}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, available: checked }))}
                   />
                   <Label htmlFor="available" className="cursor-pointer text-sm font-medium">
@@ -309,8 +309,8 @@ export const MenuManagement = () => {
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="rounded-2xl transition-all duration-200 hover:scale-105 premium-gradient"
                     disabled={isCreating || isUpdating}
                   >
@@ -331,12 +331,14 @@ export const MenuManagement = () => {
             >
               {/* Featured Badge */}
               {item.featured && (
-                <div className="absolute top-3 left-3 z-10">
+                <div className="absolute  left-1/2 -translate-x-1/2 z-10">
                   <Badge className="premium-gradient text-white border-0 shadow-lg">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     Featured
                   </Badge>
                 </div>
+
+
               )}
 
               {/* Image with Overlay */}
@@ -359,10 +361,10 @@ export const MenuManagement = () => {
                     <p className="text-sm text-muted-foreground mt-1">{item.category}</p>
                   </div>
                   <span className="text-lg font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-                    ${item.price.toFixed(2)}
+                    ₹{item.price.toFixed(2)}
                   </span>
                 </div>
-                
+
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
                   {item.description}
                 </p>
@@ -372,8 +374,8 @@ export const MenuManagement = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex items-center gap-2 cursor-help">
-                          <Switch 
-                            checked={item.available} 
+                          <Switch
+                            checked={item.available}
                             className="data-[state=checked]:bg-green-500"
                             onCheckedChange={(checked) => handleToggleAvailable(item._id, checked)}
                           />
@@ -382,18 +384,18 @@ export const MenuManagement = () => {
                           </span>
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent className="backdrop-blur-xl">
-                        <p>Toggle item availability for customers</p>
+                      <TooltipContent className="backdrop-blur-xl  z-[9999]">
+                        <p>.......................... Toggle item availability for customers</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  
+
                   <div className="flex gap-1 transition-opacity duration-300">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           className="h-8 w-8 rounded-lg transition-all duration-200 hover:scale-110 hover:bg-primary/10"
                           onClick={() => handleToggleFeatured(item._id)}
                         >
@@ -411,9 +413,9 @@ export const MenuManagement = () => {
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           className="h-8 w-8 rounded-lg transition-all duration-200 hover:scale-110 hover:bg-blue-500/10"
                           onClick={() => handleEdit(item)}
                         >
@@ -462,7 +464,7 @@ export const MenuManagement = () => {
               <p className="text-muted-foreground">
                 Start by adding your first menu item to showcase your offerings to customers.
               </p>
-              <Button 
+              <Button
                 onClick={() => setIsAdding(true)}
                 className="premium-gradient rounded-2xl mt-4"
               >

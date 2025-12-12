@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAtom } from 'jotai';
 import { userAtom } from '@/atoms/userAtom';
+import { io, Socket } from "socket.io-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,10 +22,33 @@ interface AdminHeaderProps {
 
 export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
     const [user] = useAtom(userAtom);
+      const [notifications, setNotifications] = useState<any[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    // Connect to server
+    const s = io("http://localhost:5000"); // replace with your backend URL
+    setSocket(s);
+
+    // Listen to new orders
+    s.on("newOrder", (order) => {
+      setNotifications((prev) => [order, ...prev]);
+    });
+
+    // Optional: listen to other events
+    s.on("orderUpdated", (data) => {
+      setNotifications((prev) => [data, ...prev]);
+    });
+
+    return () => {
+      s.disconnect();
+    };
+  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -169,16 +193,29 @@ export const AdminHeader = ({ title, description }: AdminHeaderProps) => {
                     <span className="font-semibold text-sm">Notifications</span>
                   </div>
                   <p className="text-xs text-gray-300 mb-3">{tooltips.bell}</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2 bg-primary/10 rounded-lg">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <span className="text-xs">New order #2847 received</span>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 bg-yellow-500/10 rounded-lg">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-                      <span className="text-xs">Low inventory alert</span>
-                    </div>
-                  </div>
+                 <div className="space-y-2 max-h-64 overflow-y-auto">
+  {notifications.length === 0 && (
+    <div className="text-xs text-gray-400">No notifications</div>
+  )}
+  {notifications.map((notif, idx) => (
+    <div
+      key={idx}
+      className={cn(
+        "flex items-center gap-2 p-2 rounded-lg",
+        notif.type === "order" ? "bg-primary/10" : "bg-yellow-500/10"
+      )}
+    >
+      <div className={cn(
+        "w-2 h-2 rounded-full",
+        notif.type === "order" ? "bg-primary animate-pulse" : "bg-yellow-500"
+      )} />
+      <span className="text-xs">
+        {notif.message || `Order #${notif.orderId || notif.id} status: ${notif.status}`}
+      </span>
+    </div>
+  ))}
+</div>
+
                 </div>
               </div>
             )}

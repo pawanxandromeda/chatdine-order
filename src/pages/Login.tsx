@@ -174,7 +174,7 @@ const Login = () => {
             <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
               <span className="text-white font-bold text-xl">M</span>
             </div>
-            <span className="font-bold text-3xl">Mevoo</span>
+            <span className="font-bold text-3xl">Food Galaxy</span>
           </div>
           <h2 className="text-5xl font-bold mb-6 leading-tight">
             Manage your restaurant effortlessly
