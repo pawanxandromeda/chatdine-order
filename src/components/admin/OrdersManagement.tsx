@@ -622,7 +622,7 @@ export default function OrdersManagement() {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">${revenueStats.revenue.toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-primary"> ₹{revenueStats.revenue.toFixed(2)}</div>
                     <div className="text-sm text-muted-foreground">Total Revenue</div>
                   </div>
                   <div className="text-center p-4 bg-muted/30 rounded-lg">
@@ -630,7 +630,7 @@ export default function OrdersManagement() {
                     <div className="text-sm text-muted-foreground">Orders</div>
                   </div>
                   <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">${revenueStats.averageOrderValue.toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-primary"> ₹{revenueStats.averageOrderValue.toFixed(2)}</div>
                     <div className="text-sm text-muted-foreground">Avg. Order Value</div>
                   </div>
                 </div>
@@ -709,7 +709,7 @@ export default function OrdersManagement() {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Total</p>
                       <p className="text-2xl font-bold text-primary">
-                        ${order.total.toFixed(2)}
+                         ₹{order.total.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -724,7 +724,7 @@ export default function OrdersManagement() {
                         <div className="flex items-center gap-3">
                           <span className="font-medium">{item.name}</span>
                           <Badge variant="secondary" className="text-xs">
-                            ${item.price.toFixed(2)}
+                             ₹{item.price.toFixed(2)}
                           </Badge>
                           {item.notes && (
                             <Tooltip>
@@ -740,7 +740,7 @@ export default function OrdersManagement() {
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">x{item.quantity}</span>
                           <span className="font-semibold text-primary">
-                            ${(item.price * item.quantity).toFixed(2)}
+                             ₹{(item.price * item.quantity).toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -953,16 +953,16 @@ export default function OrdersManagement() {
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">${item.price.toFixed(2)} x {item.quantity}</p>
+                            <p className="font-medium"> ₹{item.price.toFixed(2)} x {item.quantity}</p>
                             <p className="text-primary font-semibold">
-                              ${(item.price * item.quantity).toFixed(2)}
+                               ₹{(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
                       ))}
                       <div className="flex justify-between items-center pt-4 border-t">
                         <span className="font-bold">Total Amount</span>
-                        <span className="text-2xl font-bold text-primary">${selectedOrder.total.toFixed(2)}</span>
+                        <span className="text-2xl font-bold text-primary">₹{selectedOrder.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

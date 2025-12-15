@@ -8,7 +8,7 @@ import {
   Paper, InputAdornment, CircularProgress, Alert, Snackbar, 
   Dialog, DialogTitle, DialogContent, DialogActions, Avatar, 
   ListItemAvatar, Rating, FormControl, Select, MenuItem,
-  BottomNavigation, BottomNavigationAction, alpha, Slide, Grow,
+  BottomNavigation, BottomNavigationAction, Slide, Grow,
   Tooltip, useTheme, ThemeProvider, createTheme, CssBaseline, GlobalStyles
 } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
@@ -153,11 +153,14 @@ const appleTheme = createTheme({
 });
 
 // Styled Components
-const GlassCard = styled(Card)(() => ({
+const GlassCard = styled(Card)(({ theme }) => ({
   background: 'rgba(255,255,255,0.72)',
   backdropFilter: 'saturate(180%) blur(20px)',
   WebkitBackdropFilter: 'saturate(180%) blur(20px)',
   border: '0.5px solid rgba(255,255,255,0.6)',
+  [theme.breakpoints.down('sm')]: {
+    borderRadius: 12,
+  }
 }));
 
 const PremiumButton = styled(Button)(({ theme }) => ({
@@ -542,29 +545,143 @@ useEffect(() => {
     showSnackbar('Cart cleared', 'info');
   };
 
-  // Checkout
-  const handleCheckout = async () => {
-    try {
-      setLoading(prev => ({ ...prev, checkout: true }));
-      const response = await axios.post(`${API_BASE}/foodcourts/${foodCourtId}/cart/${tableNumber}/checkout`, {
-        paymentCaptured: true,
-        paymentMethod: 'online',
-        specialInstructions: cart.items.map(item => `${item.name}: ${item.specialInstructions || 'None'}`).join('; ')
-      });
-      if (response.data.success) {
-        setCart({ items: [], tableNumber });
-        localStorage.removeItem(`cart_${foodCourtId}_${tableNumber}`);
-        setCheckoutDialogOpen(false);
-        setOrderSuccessDialogOpen(true);
-        await fetchOrderHistory();
-        showSnackbar('Order placed successfully', 'success');
+const loadRazorpay = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    // Already loaded
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+
+    script.onload = () => {
+      console.log("Razorpay SDK loaded");
+      resolve(true);
+    };
+
+    script.onerror = () => {
+      console.error("Razorpay SDK failed to load");
+      resolve(false);
+    };
+
+    document.body.appendChild(script);
+  });
+};
+
+
+const openRazorpay = (razorpayOrder: any) => {
+  // 🛑 Safety check
+  if (!(window as any).Razorpay) {
+    showSnackbar("Razorpay SDK not loaded", "error");
+    return;
+  }
+
+  const options = {
+    key: import.meta.env.VITE_RAZORPAY_KEY_ID, // test/live key_id
+    amount: razorpayOrder.amount,
+    currency: razorpayOrder.currency || "INR",
+    name: "Food Court",
+    description: "Order Payment",
+    order_id: razorpayOrder.id,
+
+    handler: async (response: any) => {
+      try {
+        await finalizeCheckout(response);
+        showSnackbar("Payment successful", "success");
+      } catch (err) {
+        showSnackbar("Payment captured but order failed", "error");
       }
-    } catch (error: any) {
-      showSnackbar(error.response?.data?.message || 'Checkout failed', 'error');
-    } finally {
-      setLoading(prev => ({ ...prev, checkout: false }));
+    },
+
+    modal: {
+      ondismiss: () => {
+        showSnackbar("Payment cancelled", "info");
+      }
+    },
+
+    prefill: {
+      name: "Guest",
+      email: "guest@foodcourt.com",
+      contact: "9999999999"
+    },
+
+    theme: {
+      color: "#1d1d1f"
     }
   };
+
+  // ✅ THIS WAS MISSING
+  const rzp = new (window as any).Razorpay(options);
+  rzp.open();
+};
+
+const finalizeCheckout = async (razorpayResponse: any) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE}/foodcourts/${foodCourtId}/cart/${tableNumber}/checkout`,
+      {
+        paymentCaptured: true,
+        razorpay: {
+          payment_id: razorpayResponse.razorpay_payment_id,
+          order_id: razorpayResponse.razorpay_order_id,
+          signature: razorpayResponse.razorpay_signature
+        },
+        paymentMethod: "online",
+        specialInstructions: cart.items
+          .map(item => `${item.name}: ${item.specialInstructions || "None"}`)
+          .join("; ")
+      }
+    );
+
+    if (response.data.success) {
+      setCart({ items: [], tableNumber });
+      localStorage.removeItem(`cart_${foodCourtId}_${tableNumber}`);
+      setCheckoutDialogOpen(false);
+      setOrderSuccessDialogOpen(true);
+      await fetchOrderHistory();
+      showSnackbar("Order placed successfully", "success");
+    }
+
+  } catch (error: any) {
+    showSnackbar("Payment done but order failed. Contact support.", "error");
+  }
+};
+
+  // Checkout
+const handleCheckout = async () => {
+  try {
+    setLoading(prev => ({ ...prev, checkout: true }));
+    
+     const sdkLoaded = await loadRazorpay();
+    if (!sdkLoaded) {
+      showSnackbar("Razorpay SDK failed to load", "error");
+      return;
+    }
+
+    // 1️⃣ Ask backend to create Razorpay order
+    
+const { data } = await axios.post(
+  `http://localhost:5000/api/checkout/foodcourts/693956e9d5a96682b3991475/cart/4/initiate`,
+  {
+    amount: calculateGrandTotal(), // in rupees
+    foodCourtId,
+    tableNumber,
+  }
+);
+console.log("ORDER API RESPONSE:", data);
+    // 2️⃣ Open Razorpay modal
+    openRazorpay(data.razorpayOrder);
+
+  } catch (error: any) {
+    showSnackbar("Unable to initiate payment", "error");
+  } finally {
+    setLoading(prev => ({ ...prev, checkout: false }));
+  }
+};
+
 
   // Chat
   const sendChatMessage = async () => {
@@ -598,14 +715,15 @@ useEffect(() => {
     const cartItem = cart.items.find(ci => ci.menuId === item._id);
     
     return (
-      <Card sx={{ 
+      <GlassCard sx={{ 
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
         overflow: 'hidden',
-        '&:hover': { boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }
+        '&:hover': { boxShadow: '0 10px 30px rgba(0,0,0,0.08)' },
+        p: 0
       }}>
-        <Box sx={{ position: 'relative', pt: '65%' }}>
+        <Box sx={{ position: 'relative', pt: isMobile ? '56%' : '65%' }}>
           <CardMedia
             component="img"
             image={item.image || '/api/placeholder/400/260'}
@@ -652,7 +770,7 @@ useEffect(() => {
           )}
         </Box>
         
-        <CardContent sx={{ flexGrow: 1, p: 2, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
+          <CardContent sx={{ flexGrow: 1, p: 2, pb: 1.5, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
             <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', lineHeight: 1.3, pr: 1, flex: 1 }}>
               {item.name}
@@ -732,7 +850,8 @@ useEffect(() => {
                 startIcon={<AddShoppingCartIcon sx={{ fontSize: '14px !important' }} />}
                 sx={{ 
                   borderRadius: 3, 
-                  py: 0.75, 
+                  py: isMobile ? 1 : 0.75,
+                  width: isMobile ? '100%' : 'auto',
                   px: 1.5, 
                   minWidth: 'auto',
                   fontSize: '0.75rem'
@@ -743,7 +862,7 @@ useEffect(() => {
             )}
           </Box>
         </CardContent>
-      </Card>
+      </GlassCard>
     );
   };
 
@@ -813,8 +932,8 @@ useEffect(() => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between',
-            px: 2,
-            py: 1.5,
+            px: isMobile ? 1.25 : 2,
+            py: isMobile ? 1 : 1.5,
             maxWidth: 'lg',
             mx: 'auto'
           }}>
@@ -834,10 +953,10 @@ useEffect(() => {
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <IconButton onClick={() => setChatOpen(true)} sx={{ p: 1 }}>
+              <IconButton onClick={() => setChatOpen(true)} sx={{ p: isMobile ? 1.25 : 1 }}>
                 <ChatIcon sx={{ fontSize: 20 }} />
               </IconButton>
-              <IconButton onClick={() => setCartOpen(true)} sx={{ p: 1 }}>
+              <IconButton onClick={() => setCartOpen(true)} sx={{ p: isMobile ? 1.25 : 1 }}>
                 <Badge badgeContent={cart.items.length} color="error" sx={{ '& .MuiBadge-badge': { fontSize: '0.625rem', minWidth: 16, height: 16 } }}>
                   <ShoppingCartIcon sx={{ fontSize: 20 }} />
                 </Badge>
@@ -900,10 +1019,10 @@ useEffect(() => {
           />
 
           {/* Quick Filters */}
-          <Box sx={{ mb: 2.5 }}>
+          <Box sx={{ mb: 2.5, px: isMobile ? 1 : 0 }}>
 
-            <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1, '&::-webkit-scrollbar': { display: 'none' } }}>
-               <IconButton onClick={() => setFilterDrawerOpen(true)} sx={{ borderRadius: 2, border: '1px solid rgba(0,0,0,0.12)', p: 0.75 }}>
+            <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 0, px: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
+               <IconButton onClick={() => setFilterDrawerOpen(true)} sx={{ borderRadius: 2, border: '1px solid rgba(0,0,0,0.12)', p: 1 }}>
                 <FilterIcon sx={{ fontSize: 16 }} />
               </IconButton>
 
@@ -952,7 +1071,7 @@ useEffect(() => {
             <Grid container spacing={2}>
               {outlets.map((outlet) => (
                 <Grid item xs={12} sm={6} md={4} key={outlet._id}>
-                  <Card sx={{ overflow: 'hidden' }}>
+                  <GlassCard sx={{ overflow: 'hidden' }}>
                     <Box sx={{ position: 'relative', pt: '50%' }}>
                       <CardMedia
                         component="img"
@@ -999,7 +1118,7 @@ useEffect(() => {
                         <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary' }}>{outlet.deliveryTime || '15-25 min'}</Typography>
                       </Box>
                     </CardContent>
-                  </Card>
+                  </GlassCard>
                 </Grid>
               ))}
             </Grid>
@@ -1152,7 +1271,7 @@ useEffect(() => {
           anchor="right"
           open={cartOpen}
           onClose={() => setCartOpen(false)}
-          PaperProps={{ sx: { width: isMobile ? '100%' : 400, bgcolor: '#fbfbfd', display: 'flex', flexDirection: 'column' } }}
+          PaperProps={{ sx: { width: isMobile ? '100%' : 400, bgcolor: '#fbfbfd', display: 'flex', flexDirection: 'column', backdropFilter: 'saturate(180%) blur(12px)' } }}
         >
           <Box sx={{ p: 2.5, flexGrow: 1, overflow: 'auto' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
@@ -1228,7 +1347,7 @@ useEffect(() => {
           anchor="right"
           open={chatOpen}
           onClose={() => setChatOpen(false)}
-          PaperProps={{ sx: { width: isMobile ? '100%' : 400, bgcolor: '#fbfbfd', display: 'flex', flexDirection: 'column' } }}
+          PaperProps={{ sx: { width: isMobile ? '100%' : 400, bgcolor: '#fbfbfd', display: 'flex', flexDirection: 'column', backdropFilter: 'saturate(180%) blur(12px)' } }}
         >
           <Box sx={{ p: 2.5, borderBottom: '0.5px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -1293,7 +1412,7 @@ useEffect(() => {
           anchor="bottom"
           open={filterDrawerOpen}
           onClose={() => setFilterDrawerOpen(false)}
-          PaperProps={{ sx: { height: '70vh', borderTopLeftRadius: 20, borderTopRightRadius: 20, bgcolor: '#fbfbfd' } }}
+          PaperProps={{ sx: { height: '70vh', borderTopLeftRadius: 20, borderTopRightRadius: 20, bgcolor: '#fbfbfd', backdropFilter: 'saturate(180%) blur(12px)' } }}
         >
           <Box sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
