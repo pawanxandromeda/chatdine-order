@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Container, Typography, Grid, Card, CardContent,
   CardMedia, Button, IconButton, Badge, Drawer, List,
-  ListItem, ListItemText, Divider, TextField, Chip,
+  ListItem, ListItemButton, ListItemText, Divider, TextField, Chip,
   Paper, InputAdornment, CircularProgress, Alert, Snackbar, 
   Dialog, DialogTitle, DialogContent, DialogActions, Avatar, 
   ListItemAvatar, Rating, FormControl, Select, MenuItem,
@@ -254,11 +254,19 @@ interface Order {
     quantity: number;
     subtotal: number;
   }>;
-  totalAmount: number;
+  // Backwards-compatible fields and new API fields
+  totalAmount?: number;
+  total?: number;
+  subtotal?: number;
+  tax?: number;
+  serviceCharge?: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
   createdAt: string;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  orderNumber: string;
+  paymentStatus: 'pending' | 'paid' | 'failed' | string;
+  orderNumber?: string;
+  orderId?: string;
+  vendor?: string;
+  parentOrderId?: string;
 }
 
 interface ChatMessage {
@@ -317,7 +325,10 @@ const FoodCourtPage: React.FC = () => {
   const [selectedOutlets, setSelectedOutlets] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [tableNumber, setTableNumber] = useState<string>(localStorage.getItem('tableNumber') || '1');
+  const [tableNumber, setTableNumber] = useState<string>(localStorage.getItem('tableNumber') || 'TAKEAWAY');
+  const [orderMode, setOrderMode] = useState<'takeaway' | 'dine-in'>((localStorage.getItem('orderMode') as 'takeaway' | 'dine-in') || 'takeaway');
+  const [tableDrawerOpen, setTableDrawerOpen] = useState(false);
+  const isTiny = useMediaQuery('(max-width:360px)');
   
   // UI State
   const [cartOpen, setCartOpen] = useState(false);
@@ -326,6 +337,8 @@ const FoodCourtPage: React.FC = () => {
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'info' | 'warning' });
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orderDetailOpen, setOrderDetailOpen] = useState(false);
 
   // Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -495,6 +508,11 @@ useEffect(() => {
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
+  };
+
+  const viewOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setOrderDetailOpen(true);
   };
 
   // Cart Operations
@@ -723,7 +741,7 @@ console.log("ORDER API RESPONSE:", data);
         '&:hover': { boxShadow: '0 10px 30px rgba(0,0,0,0.08)' },
         p: 0
       }}>
-        <Box sx={{ position: 'relative', pt: isMobile ? '56%' : '65%' }}>
+        <Box sx={{ position: 'relative', pt: isTiny ? '72%' : (isMobile ? '56%' : '65%') }}>
           <CardMedia
             component="img"
             image={item.image || '/api/placeholder/400/260'}
@@ -849,12 +867,16 @@ console.log("ORDER API RESPONSE:", data);
                 disabled={!item.available}
                 startIcon={<AddShoppingCartIcon sx={{ fontSize: '14px !important' }} />}
                 sx={{ 
-                  borderRadius: 3, 
-                  py: isMobile ? 1 : 0.75,
+                  borderRadius: 8, 
+                  py: isMobile ? 1.25 : 0.75,
                   width: isMobile ? '100%' : 'auto',
                   px: 1.5, 
                   minWidth: 'auto',
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
+                  transition: 'transform 220ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 220ms',
+                  boxShadow: isMobile ? '0 6px 20px rgba(0,0,0,0.08)' : 'none',
+                  background: isMobile ? 'linear-gradient(90deg,#0071e3,#42a5f5)' : undefined,
+                  '&:active': { transform: 'translateY(1px)' }
                 }}
               >
                 Add
@@ -947,12 +969,13 @@ console.log("ORDER API RESPONSE:", data);
                 </Typography>
                 <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <LocationOnIcon sx={{ fontSize: 10 }} />
-                  {foodCourt.city} • Table {tableNumber}
+                  {foodCourt.city} • {orderMode === 'takeaway' ? 'Takeaway' : `Table ${tableNumber}`}
                 </Typography>
               </Box>
             </Box>
             
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Chip label={selectedOutlets.length > 0 ? `${selectedOutlets.length} Outlet${selectedOutlets.length > 1 ? 's' : ''}` : 'All Outlets'} onClick={() => setFilterDrawerOpen(true)} clickable size="small" sx={{ borderRadius: 2, fontSize: '0.75rem' }} />
               <IconButton onClick={() => setChatOpen(true)} sx={{ p: isMobile ? 1.25 : 1 }}>
                 <ChatIcon sx={{ fontSize: 20 }} />
               </IconButton>
@@ -966,32 +989,18 @@ console.log("ORDER API RESPONSE:", data);
         </Box>
 
         <Container maxWidth="lg" sx={{ pt: 2 }}>
-          {/* Table Selection */}
+          {/* Order Mode (Takeaway by default) */}
           <GlassCard sx={{ p: 2, mb: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-              <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>Your Table</Typography>
-              <GroupsIcon sx={{ fontSize: 16, opacity: 0.5 }} />
+              <Box>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>Order Mode</Typography>
+                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{orderMode === 'takeaway' ? 'Takeaway (default)' : `Table ${tableNumber}`}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Chip label="Takeaway" clickable color={orderMode === 'takeaway' ? 'primary' : 'default'} onClick={() => { setOrderMode('takeaway'); setTableNumber('TAKEAWAY'); localStorage.setItem('orderMode', 'takeaway'); localStorage.setItem('tableNumber', 'TAKEAWAY'); }} sx={{ borderRadius: 2 }} />
+                <Chip label="Dine-In" clickable color={orderMode === 'dine-in' ? 'primary' : 'default'} onClick={() => { setOrderMode('dine-in'); setTableDrawerOpen(true); localStorage.setItem('orderMode', 'dine-in'); }} sx={{ borderRadius: 2 }} />
+              </Box>
             </Box>
-            <FormControl fullWidth size="small">
-              <Select
-                value={tableNumber}
-                onChange={(e) => {
-                  setTableNumber(e.target.value);
-                  localStorage.setItem('tableNumber', e.target.value);
-                }}
-                sx={{ 
-                  borderRadius: 3, 
-                  fontSize: '0.875rem',
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(0,0,0,0.08)' }
-                }}
-              >
-                {Array.from({ length: 100 }, (_, i) => (
-                  <MenuItem key={i + 1} value={(i + 1).toString()} sx={{ fontSize: '0.875rem' }}>
-                    Table {i + 1}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
           </GlassCard>
 
           {/* Search */}
@@ -1056,7 +1065,7 @@ console.log("ORDER API RESPONSE:", data);
             ) : (
               <Grid container spacing={2}>
                 {filteredMenus.map((item, index) => (
-                  <Grid item xs={6} sm={4} md={3} key={item._id}>
+                  <Grid item component="div" xs={isTiny ? 12 : 6} sm={4} md={3} key={item._id}>
                     <Grow in timeout={index * 50}>
                       <div><MenuItemCard item={item} /></div>
                     </Grow>
@@ -1070,7 +1079,7 @@ console.log("ORDER API RESPONSE:", data);
           <TabPanel value={activeTab} index={1}>
             <Grid container spacing={2}>
               {outlets.map((outlet) => (
-                <Grid item xs={12} sm={6} md={4} key={outlet._id}>
+                <Grid item component="div" xs={12} sm={6} md={4} key={outlet._id}>
                   <GlassCard sx={{ overflow: 'hidden' }}>
                     <Box sx={{ position: 'relative', pt: '50%' }}>
                       <CardMedia
@@ -1126,65 +1135,75 @@ console.log("ORDER API RESPONSE:", data);
 
           {/* Orders Tab */}
           <TabPanel value={activeTab} index={2}>
-            {orders.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <ReceiptIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-                <Typography sx={{ fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>No orders yet</Typography>
-                <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>Your orders will appear here</Typography>
-              </Box>
-            ) : (
-              <List disablePadding>
-                {orders.map((order) => (
-                  <React.Fragment key={order._id}>
-                    <ListItem sx={{ px: 0, py: 2, gap: 2 }}>
-                      <Avatar sx={{ bgcolor: 'rgba(0,0,0,0.04)', color: 'text.primary', width: 44, height: 44 }}>
-                        <ReceiptIcon sx={{ fontSize: 20 }} />
-                      </Avatar>
-                      <ListItemText
-                        primary={<Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>#{order.orderNumber}</Typography>}
-                        secondary={
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
-<Typography sx={{ fontSize: '0.8125rem' }}>
-  ₹{Number(order.totalAmount || 0).toFixed(2)} • {order.items.length} items
-</Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Chip
-                                label={order.status}
-                                size="small"
-                                sx={{
-                                  height: 20,
-                                  fontSize: '0.625rem',
-                                  fontWeight: 600,
-                                  bgcolor:
-                                    order.status === 'delivered' ? 'rgba(48,209,88,0.15)' :
-                                    order.status === 'preparing' ? 'rgba(255,159,10,0.15)' :
-                                    order.status === 'pending' ? 'rgba(10,132,255,0.15)' : 'rgba(255,69,58,0.15)',
-                                  color:
-                                    order.status === 'delivered' ? '#248a3d' :
-                                    order.status === 'preparing' ? '#c93400' :
-                                    order.status === 'pending' ? '#0051a2' : '#d70015'
-                                }}
-                              />
-                              <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary' }}>
-                                {new Date(order.createdAt).toLocaleDateString()}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        }
-                      />
-                      <ChevronRightIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
-                    </ListItem>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </List>
-            )}
-          </TabPanel>
+  {orders.length === 0 ? (
+    <Box sx={{ textAlign: 'center', py: 8 }}>
+      <ReceiptIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+      <Typography sx={{ fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>No orders yet</Typography>
+      <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>Your orders will appear here</Typography>
+    </Box>
+  ) : (
+    <List disablePadding>
+      {orders.map((order) => (
+        <React.Fragment key={order._id}>
+          <ListItemButton onClick={() => viewOrderDetails(order)} sx={{ px: 0, py: 2, gap: 2 }}>
+            <Avatar sx={{ bgcolor: 'rgba(0,0,0,0.04)', color: 'text.primary', width: 44, height: 44 }}>
+              <ReceiptIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <ListItemText
+              primary={
+                <Box>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                    {`#${order.orderId || order.orderNumber || order._id}`}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                    {order?.restaurantName || 'Unknown Restaurant'}
+                  </Typography>
+                </Box>
+              }
+              secondary={
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
+                  <Typography sx={{ fontSize: '0.8125rem' }}>
+                    ₹{Number(order.total || order.totalAmount || 0).toFixed(2)} • {order.items.length} items • {order.paymentStatus}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Chip
+                      label={order.status}
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: '0.625rem',
+                        fontWeight: 600,
+                        bgcolor:
+                          order.status === 'delivered' ? 'rgba(48,209,88,0.15)' :
+                          order.status === 'preparing' ? 'rgba(255,159,10,0.15)' :
+                          order.status === 'pending' ? 'rgba(10,132,255,0.15)' : 'rgba(255,69,58,0.15)',
+                        color:
+                          order.status === 'delivered' ? '#248a3d' :
+                          order.status === 'preparing' ? '#c93400' :
+                          order.status === 'pending' ? '#0051a2' : '#d70015'
+                      }}
+                    />
+                    <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary' }}>
+                      {new Date(order.createdAt).toLocaleString().replace(',', '')}
+                    </Typography>
+                  </Box>
+                </Box>
+              }
+            />
+            <ChevronRightIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+          </ListItemButton>
+          <Divider />
+        </React.Fragment>
+      ))}
+    </List>
+  )}
+</TabPanel>
+
 
           {/* Info Tab */}
           <TabPanel value={activeTab} index={3}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item component="div" xs={12} md={6}>
                 <GlassCard sx={{ p: 2.5 }}>
                   <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Info sx={{ fontSize: 18 }} />
@@ -1202,7 +1221,7 @@ console.log("ORDER API RESPONSE:", data);
                   )}
                 </GlassCard>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item component="div" xs={12} md={6}>
                 <GlassCard sx={{ p: 2.5 }}>
                   <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <LocationOnIcon sx={{ fontSize: 18 }} />
@@ -1282,7 +1301,7 @@ console.log("ORDER API RESPONSE:", data);
               </Box>
             </Box>
             <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <RestaurantIcon sx={{ fontSize: 14 }} /> Table {tableNumber}
+              <RestaurantIcon sx={{ fontSize: 14 }} /> {orderMode === 'takeaway' ? 'Takeaway' : `Table ${tableNumber}`}
             </Typography>
             {cart.items.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -1407,6 +1426,41 @@ console.log("ORDER API RESPONSE:", data);
           </Box>
         </Drawer>
 
+        {/* Table Selection Drawer (for Dine-In) */}
+        <Drawer
+          anchor="bottom"
+          open={tableDrawerOpen}
+          onClose={() => setTableDrawerOpen(false)}
+          PaperProps={{ sx: { height: '50vh', borderTopLeftRadius: 20, borderTopRightRadius: 20, bgcolor: '#fbfbfd', backdropFilter: 'saturate(180%) blur(12px)' } }}
+        >
+          <Box sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '1.125rem' }}>Choose Table</Typography>
+              <IconButton onClick={() => setTableDrawerOpen(false)} size="small"><CloseIcon sx={{ fontSize: 18 }} /></IconButton>
+            </Box>
+
+            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+              <Grid container spacing={1}>
+                {Array.from({ length: 20 }, (_, i) => (
+                  <Grid item component="div" xs={4} key={i}>
+                    <Card onClick={() => { setTableNumber((i + 1).toString()); localStorage.setItem('tableNumber', (i + 1).toString()); setTableDrawerOpen(false); }}
+                      sx={{ cursor: 'pointer', borderRadius: 2, py: 2, textAlign: 'center', border: tableNumber === (i + 1).toString() ? '2px solid #1d1d1f' : '1px solid rgba(0,0,0,0.06)' }}>
+                      <Typography sx={{ fontWeight: 700 }}>{i + 1}</Typography>
+                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Table</Typography>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1.5, pt: 2 }}>
+              <Button fullWidth variant="outlined" onClick={() => { setOrderMode('takeaway'); setTableNumber('TAKEAWAY'); localStorage.setItem('orderMode', 'takeaway'); localStorage.setItem('tableNumber', 'TAKEAWAY'); setTableDrawerOpen(false); }}
+                sx={{ borderRadius: 3, borderColor: 'rgba(0,0,0,0.15)', color: 'text.primary' }}>Switch to Takeaway</Button>
+              <SecondaryButton fullWidth onClick={() => setTableDrawerOpen(false)}>Done</SecondaryButton>
+            </Box>
+          </Box>
+        </Drawer>
+
         {/* Filter Drawer */}
         <Drawer
           anchor="bottom"
@@ -1429,7 +1483,7 @@ console.log("ORDER API RESPONSE:", data);
               <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, mb: 1.5 }}>Outlets</Typography>
               <Grid container spacing={1}>
                 {outlets.map(outlet => (
-                  <Grid item xs={6} key={outlet._id}>
+                  <Grid item component="div" xs={6} key={outlet._id}>
                     <Card
                       onClick={() => {
                         if (selectedOutlets.includes(outlet._id)) {
@@ -1473,7 +1527,7 @@ console.log("ORDER API RESPONSE:", data);
           <DialogContent>
             <Box sx={{ textAlign: 'center', py: 1 }}>
               <ReceiptIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1.5 }} />
-              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', mb: 0.5 }}>Table {tableNumber}</Typography>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem', mb: 0.5 }}>{orderMode === 'takeaway' ? 'Takeaway' : `Table ${tableNumber}`}</Typography>
               <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary', mb: 2 }}>{cart.items.length} items • ₹{calculateGrandTotal().toFixed(2)}</Typography>
               <List dense disablePadding>
                 {cart.items.map((item, i) => (
@@ -1518,6 +1572,105 @@ console.log("ORDER API RESPONSE:", data);
             </SecondaryButton>
           </DialogContent>
         </Dialog>
+
+        {/* Order Detail Dialog */}
+    <Dialog open={orderDetailOpen} onClose={() => setOrderDetailOpen(false)} fullWidth maxWidth="xs">
+  <DialogTitle sx={{ fontWeight: 700 }}>
+    {selectedOrder ? `Order ${selectedOrder.orderId || selectedOrder.orderNumber || selectedOrder._id}` : 'Order'}
+  </DialogTitle>
+  <DialogContent>
+    {selectedOrder && (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        
+        {/* Table & Payment Status */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>{selectedOrder.tableNumber}</Typography>
+          <Chip
+            label={selectedOrder.paymentStatus}
+            size="small"
+            sx={{ fontWeight: 600 }}
+            color={
+              selectedOrder.paymentStatus === 'paid'
+                ? 'success'
+                : selectedOrder.paymentStatus === 'pending'
+                ? 'info'
+                : 'warning'
+            }
+          />
+        </Box>
+
+        {/* Vendor / Restaurant Name */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>Vendor</Typography>
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+            {selectedOrder.vendor?.restaurantName || selectedOrder.restaurantName || '—'}
+          </Typography>
+        </Box>
+
+        <Divider />
+
+        {/* Order Items */}
+        <Box>
+          {selectedOrder.items.map((it, i) => (
+            <Box
+              key={`${it.menuId}-${i}`}
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.75 }}
+            >
+              <Box>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>{it.name}</Typography>
+                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                  {it.quantity} × ₹{it.price.toFixed(2)}
+                </Typography>
+              </Box>
+              <Typography sx={{ fontWeight: 700 }}>₹{(it.price * it.quantity).toFixed(2)}</Typography>
+            </Box>
+          ))}
+        </Box>
+
+        <Divider />
+
+        {/* Subtotal, Tax & Total */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'text.secondary' }}>Subtotal</Typography>
+          <Typography sx={{ fontWeight: 600 }}>
+            ₹{(selectedOrder.subtotal ?? selectedOrder.total ?? 0).toFixed(2)}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'text.secondary' }}>Tax</Typography>
+          <Typography>₹{(selectedOrder.tax ?? 0).toFixed(2)}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={{ color: 'text.secondary' }}>Total</Typography>
+          <Typography sx={{ fontWeight: 700 }}>
+            ₹{(selectedOrder.total ?? selectedOrder.totalAmount ?? 0).toFixed(2)}
+          </Typography>
+        </Box>
+
+        {/* Placed Time */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 1 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Placed</Typography>
+          <Typography sx={{ fontSize: '0.75rem' }}>
+            {new Date(selectedOrder.createdAt).toLocaleString()}
+          </Typography>
+        </Box>
+      </Box>
+    )}
+  </DialogContent>
+
+  <DialogActions sx={{ p: 2 }}>
+    <Button onClick={() => setOrderDetailOpen(false)} sx={{ borderRadius: 3 }}>Close</Button>
+    <SecondaryButton
+      onClick={() => {
+        setOrderDetailOpen(false);
+        setActiveTab(2);
+      }}
+      sx={{ borderRadius: 3 }}
+    >
+      View All Orders
+    </SecondaryButton>
+  </DialogActions>
+</Dialog>
 
         {/* Snackbar */}
         <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(p => ({ ...p, open: false }))} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} TransitionComponent={Slide}>
